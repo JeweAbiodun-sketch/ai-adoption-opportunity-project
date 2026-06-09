@@ -12,6 +12,22 @@ The scenario centers on Cleo, the CEO of a mid-market retail business. She is in
 - Size: 100 to 120 employees
 - Primary use case: AI-powered demand forecasting and inventory optimization
 
+## Diagnostic Takeaways
+
+The gap analysis confirms the main recommendation:
+
+- Demand forecasting is the right first AI use case
+- Data quality is the primary blocker and should be validated before any AI spend
+- The project is stronger on strategy than on cost realism, ROI assumptions, and timeline realism
+
+The main follow-up gaps are:
+
+- Infrastructure cost, especially for a hybrid end-state
+- ROI assumptions, including attribution discounts and more conservative payback framing
+- Change management and training budgets
+- Evaluation timing, which should extend beyond the first few months of launch
+- Opportunity ranking and maturity-stage calibration for the diagnostic tool
+
 ## Proposed Solution
 
 The `ai_diagnostic_tool.html` file is the working prototype for the proposed solution. It is included in this project because it captures the end-to-end consulting methodology in an interactive form, not just the final recommendation.
@@ -24,6 +40,18 @@ It demonstrates:
 - A user-facing deliverable that a CEO like Cleo can use to justify the decision and share with stakeholders
 
 This prototype is therefore part of the project’s value proposition: it is the tangible product that turns research, data, and analysis into a decision-ready recommendation.
+
+## Gap Analysis Summary
+
+The external benchmark broadly validates the project, but it also highlights several items that should be reflected in the supporting documentation:
+
+- SaaS-first cost estimates are too low for an end-state deployment and should be paired with a hybrid TCO scenario
+- The current ROI model is optimistic and should include pessimistic, base, and optimistic attribution scenarios
+- Change management should be a named budget line rather than an implied activity
+- Phase 3 evaluation should be treated as an early operational review, not the final ROI decision
+- Data remediation should be a conditional phase if the initial audit reveals insufficient clean history
+
+These findings do not overturn the recommendation. They make the recommendation more credible and more usable in a real leadership discussion.
 
 ## Repository Structure
 
@@ -122,6 +150,7 @@ Open `dashboard/retail_ai_dashboard.twb` in Tableau and connect to `data/process
 - [x] Cost analysis
 - [x] Timeline estimate
 - [x] Working prototype
+- [x] Gap analysis against an external AI readiness benchmark
 
 ## Sources
 
@@ -136,3 +165,4 @@ Open `dashboard/retail_ai_dashboard.twb` in Tableau and connect to `data/process
 
 - The project emphasizes practical adoption rather than speculative AI claims.
 - The recommendation is designed for a mid-market retail environment with limited resources and a need for measurable impact.
+- The supporting analysis points to a two-stage story: a lower-cost pilot phase and a more realistic hybrid scale phase.
