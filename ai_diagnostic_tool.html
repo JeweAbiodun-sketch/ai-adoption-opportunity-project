@@ -1,0 +1,2872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Readiness Diagnostic · Mid-Market Retail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:      #0f0e0c;
+    --ink2:     #3a3830;
+    --ink3:     #7a7668;
+    --sand:     #f5f2eb;
+    --sand2:    #ede9df;
+    --sand3:    #e0dbd0;
+    --gold:     #b8960c;
+    --gold-lt:  #f0e6b0;
+    --teal:     #1a6b5a;
+    --teal-lt:  #d4ede8;
+    --red:      #c0392b;
+    --red-lt:   #fce8e6;
+    --amber:    #c46e10;
+    --amber-lt: #fdefd8;
+    --r: 4px;
+  }
+
+  html { font-size: 16px; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--sand);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── LAYOUT ── */
+  .shell {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    padding: 40px 0 0;
+    margin-bottom: 56px;
+  }
+  .header-eyebrow {
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 10px;
+  }
+  .header-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    line-height: 1.08;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  .header-title em {
+    font-style: italic;
+    color: var(--teal);
+  }
+  .header-sub {
+    font-size: 15px;
+    color: var(--ink2);
+    max-width: 560px;
+    line-height: 1.65;
+  }
+  .stat-strip {
+    display: flex;
+    gap: 0;
+    margin-top: 32px;
+    border: 1px solid var(--sand3);
+    border-radius: var(--r);
+    overflow: hidden;
+    max-width: 480px;
+  }
+  .stat-item {
+    flex: 1;
+    padding: 14px 16px;
+    border-right: 1px solid var(--sand3);
+    background: #fff;
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .stat-num.warn { color: var(--amber); }
+  .stat-num.danger { color: var(--red); }
+  .stat-desc { font-size: 11px; color: var(--ink3); margin-top: 3px; line-height: 1.3; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    margin-bottom: 40px;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--ink3);
+    margin-bottom: 8px;
+  }
+  .progress-track {
+    height: 3px;
+    background: var(--sand3);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--teal);
+    border-radius: 99px;
+    transition: width .4s ease;
+  }
+  .step-dots {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .step-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--sand3);
+    transition: background .3s;
+  }
+  .step-dot.active { background: var(--teal); }
+  .step-dot.done { background: var(--teal); opacity: .4; }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    margin-bottom: 28px;
+  }
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 8px;
+  }
+  .section-tag::before {
+    content: '';
+    display: block;
+    width: 16px; height: 1.5px;
+    background: var(--teal);
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+  .section-desc {
+    font-size: 14px;
+    color: var(--ink2);
+    margin-top: 6px;
+    line-height: 1.6;
+  }
+
+  /* ── QUESTIONS ── */
+  .question-block {
+    margin-bottom: 28px;
+    animation: fadeUp .35s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .q-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .q-hint { font-size: 12px; color: var(--ink3); font-weight: 400; display: block; margin-top: 2px; }
+
+  /* radio cards */
+  .radio-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .radio-grid.single { grid-template-columns: 1fr; }
+  .radio-option input { display: none; }
+  .radio-option label {
+    display: block;
+    padding: 11px 14px;
+    border: 1px solid var(--sand3);
+    border-radius: var(--r);
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--ink2);
+    background: #fff;
+    transition: border-color .15s, background .15s, color .15s;
+    line-height: 1.4;
+  }
+  .radio-option input:checked + label {
+    border-color: var(--teal);
+    background: var(--teal-lt);
+    color: var(--teal);
+    font-weight: 500;
+  }
+  .radio-option label:hover {
+    border-color: var(--ink3);
+  }
+
+  /* text input */
+  .text-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid var(--sand3);
+    border-radius: var(--r);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    background: #fff;
+    outline: none;
+    transition: border-color .15s;
+    resize: vertical;
+    min-height: 80px;
+  }
+  .text-input:focus { border-color: var(--teal); }
+  .text-input::placeholder { color: var(--ink3); }
+
+  input[type="text"].text-input { min-height: unset; resize: none; }
+
+  /* ── NAVIGATION ── */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--sand3);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    border-radius: var(--r);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .15s;
+    border: 1px solid transparent;
+  }
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--sand3);
+    color: var(--ink2);
+  }
+  .btn-ghost:hover { border-color: var(--ink3); color: var(--ink); }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--sand);
+    border-color: var(--ink);
+  }
+  .btn-primary:hover { background: var(--ink2); }
+  .btn-primary:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+  }
+  .btn-teal {
+    background: var(--teal);
+    color: #fff;
+    border-color: var(--teal);
+    font-size: 14px;
+    padding: 13px 28px;
+  }
+  .btn-teal:hover { background: #155a4a; }
+
+  /* ── LOADING ── */
+  #loading-screen {
+    display: none;
+    text-align: center;
+    padding: 80px 0;
+  }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 2px solid var(--sand3);
+    border-top-color: var(--teal);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 24px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .loading-sub { font-size: 13px; color: var(--ink3); }
+  .loading-steps { margin-top: 28px; display: flex; flex-direction: column; gap: 10px; max-width: 320px; margin-left: auto; margin-right: auto; }
+  .loading-step {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px; color: var(--ink3);
+    opacity: 0;
+    animation: fadeUp .4s ease both;
+  }
+  .loading-step .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sand3); flex-shrink: 0; }
+  .loading-step.active .dot { background: var(--teal); }
+  .loading-step.active { color: var(--ink2); }
+
+  /* ── REPORT ── */
+  #report-screen { display: none; }
+
+  .report-header {
+    margin-bottom: 40px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--sand3);
+  }
+  .report-eyebrow {
+    font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--ink3); margin-bottom: 12px;
+  }
+  .report-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 5vw, 42px);
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+  .report-company {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    color: var(--teal);
+  }
+  .report-date { font-size: 13px; color: var(--ink3); margin-top: 8px; }
+
+  /* maturity banner */
+  .maturity-banner {
+    background: var(--ink);
+    color: var(--sand);
+    border-radius: var(--r);
+    padding: 28px 32px;
+    margin-bottom: 32px;
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .maturity-stage-label {
+    font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink3); margin-bottom: 4px;
+  }
+  .maturity-stage-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: #fff;
+    line-height: 1;
+  }
+  .maturity-stage-num {
+    font-size: 13px;
+    color: #888;
+    margin-top: 4px;
+  }
+  .maturity-desc {
+    flex: 1;
+    font-size: 14px;
+    color: #bbb;
+    line-height: 1.65;
+    min-width: 200px;
+  }
+
+  /* readiness scores */
+  .readiness-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .readiness-card {
+    background: #fff;
+    border: 1px solid var(--sand3);
+    border-radius: var(--r);
+    padding: 18px;
+  }
+  .readiness-label {
+    font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink3); margin-bottom: 12px;
+  }
+  .readiness-score-row {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .readiness-score {
+    font-family: 'DM Serif Display', serif;
+    font-size: 38px;
+    line-height: 1;
+  }
+  .readiness-score.green { color: var(--teal); }
+  .readiness-score.amber { color: var(--amber); }
+  .readiness-score.red   { color: var(--red); }
+  .readiness-score-max { font-size: 13px; color: var(--ink3); }
+  .readiness-bar-track {
+    height: 4px;
+    background: var(--sand2);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .readiness-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 1s ease .3s;
+  }
+  .readiness-verdict {
+    font-size: 12px;
+    color: var(--ink2);
+    line-height: 1.5;
+  }
+
+  /* report section */
+  .report-section {
+    margin-bottom: 40px;
+  }
+  .rs-label {
+    font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--teal); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .rs-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--teal-lt);
+  }
+
+  /* opportunity cards */
+  .opp-card {
+    background: #fff;
+    border: 1px solid var(--sand3);
+    border-radius: var(--r);
+    padding: 22px 24px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .opp-rank {
+    position: absolute;
+    top: 22px; right: 22px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    color: var(--sand2);
+    line-height: 1;
+    user-select: none;
+  }
+  .opp-title {
+    font-weight: 500;
+    font-size: 15px;
+    margin-bottom: 6px;
+    padding-right: 40px;
+  }
+  .opp-desc { font-size: 13px; color: var(--ink2); line-height: 1.6; margin-bottom: 14px; }
+  .opp-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .opp-badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    border: 1px solid var(--sand3);
+    color: var(--ink2);
+    background: var(--sand);
+  }
+  .opp-badge.effort-low  { border-color: var(--teal);  color: var(--teal);  background: var(--teal-lt);  }
+  .opp-badge.effort-med  { border-color: var(--amber); color: var(--amber); background: var(--amber-lt); }
+  .opp-badge.effort-high { border-color: var(--red);   color: var(--red);   background: var(--red-lt);   }
+  .opp-value {
+    font-size: 13px;
+    color: var(--ink2);
+    padding: 10px 14px;
+    background: var(--sand);
+    border-radius: var(--r);
+    border-left: 3px solid var(--gold);
+    line-height: 1.55;
+  }
+  .opp-value strong { color: var(--ink); }
+
+  /* risk flags */
+  .risk-flag {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border-radius: var(--r);
+    margin-bottom: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .risk-flag.high { background: var(--red-lt); border: 1px solid #f0b8b3; }
+  .risk-flag.medium { background: var(--amber-lt); border: 1px solid #f5d5a8; }
+  .risk-flag.low { background: var(--teal-lt); border: 1px solid #a8d9d0; }
+  .risk-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .risk-flag strong { display: block; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+  .risk-flag p { color: var(--ink2); margin: 0; }
+
+  /* next step */
+  .next-step-card {
+    background: var(--ink);
+    color: var(--sand);
+    border-radius: var(--r);
+    padding: 28px 32px;
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .next-step-label {
+    font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink3); margin-bottom: 8px;
+  }
+  .next-step-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .next-step-body { font-size: 14px; color: #bbb; line-height: 1.65; flex: 1; min-width: 200px; }
+
+  /* value frame */
+  .value-frame {
+    background: var(--gold-lt);
+    border: 1px solid #d4b840;
+    border-radius: var(--r);
+    padding: 20px 24px;
+  }
+  .value-frame-title {
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .value-frame-body { font-size: 13px; color: var(--ink2); line-height: 1.7; }
+
+  /* consulting lens */
+  .consulting-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .consulting-card {
+    background: #fff;
+    border: 1px solid var(--sand3);
+    border-radius: var(--r);
+    padding: 18px 20px;
+  }
+  .consulting-card.feature {
+    grid-column: 1 / -1;
+    border-color: #d7c79a;
+    background: linear-gradient(180deg, #fffdf6 0%, #fff 100%);
+  }
+  .consulting-card h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .consulting-card p {
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.6;
+  }
+  .consulting-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .consulting-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    border: 1px solid var(--sand3);
+    background: var(--sand);
+    color: var(--ink2);
+  }
+  .consulting-pill.good { border-color: var(--teal); background: var(--teal-lt); color: var(--teal); }
+  .consulting-pill.warn { border-color: var(--amber); background: var(--amber-lt); color: var(--amber); }
+  .consulting-pill.bad { border-color: var(--red); background: var(--red-lt); color: var(--red); }
+  .consulting-list {
+    margin-top: 10px;
+    padding-left: 18px;
+    color: var(--ink2);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .consulting-list li { margin-bottom: 6px; }
+  .checkpoint-card {
+    border-left: 3px solid var(--gold);
+    background: var(--sand);
+  }
+  .checkpoint-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 11px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    border: 1px solid var(--sand3);
+    color: var(--ink2);
+    background: #fff;
+  }
+  .checkpoint-flag.good { border-color: var(--teal); color: var(--teal); background: var(--teal-lt); }
+  .checkpoint-flag.warn { border-color: var(--amber); color: var(--amber); background: var(--amber-lt); }
+  .checkpoint-flag.bad { border-color: var(--red); color: var(--red); background: var(--red-lt); }
+  .source-note {
+    font-size: 11px;
+    color: var(--ink3);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+  .infra-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .infra-card {
+    background: #fff;
+    border: 1px solid var(--sand3);
+    border-radius: var(--r);
+    padding: 18px 20px;
+  }
+  .infra-card.recommended {
+    border-color: #97c9be;
+    background: linear-gradient(180deg, #f5fbf9 0%, #fff 100%);
+  }
+  .infra-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .infra-head h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 19px;
+    line-height: 1.15;
+    margin: 0;
+  }
+  .infra-score {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    line-height: 1;
+    color: var(--teal);
+    white-space: nowrap;
+  }
+  .infra-metric-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 12px;
+  }
+  .infra-metric {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    background: var(--sand);
+    border: 1px solid var(--sand3);
+    color: var(--ink2);
+  }
+  .infra-metric strong { color: var(--ink); }
+  .infra-notes {
+    margin-top: 10px;
+    padding-left: 18px;
+    color: var(--ink2);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .infra-notes li { margin-bottom: 5px; }
+  .infra-reco {
+    border-left: 3px solid var(--teal);
+    background: var(--teal-lt);
+  }
+  .infra-reco .consulting-pill {
+    background: #fff;
+  }
+  .tco-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .tco-box {
+    background: #fff;
+    border: 1px solid var(--sand3);
+    border-radius: var(--r);
+    padding: 12px 14px;
+  }
+  .tco-label {
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 6px;
+  }
+  .tco-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .tco-detail {
+    font-size: 12px;
+    color: var(--ink2);
+    margin-top: 5px;
+    line-height: 1.5;
+  }
+
+  /* ── ERROR ── */
+  .error-box {
+    background: var(--red-lt);
+    border: 1px solid #f0b8b3;
+    border-radius: var(--r);
+    padding: 16px 20px;
+    font-size: 13px;
+    color: var(--red);
+    margin-top: 20px;
+    display: none;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 560px) {
+    .radio-grid { grid-template-columns: 1fr; }
+    .readiness-grid { grid-template-columns: 1fr; }
+    .consulting-grid { grid-template-columns: 1fr; }
+    .infra-grid { grid-template-columns: 1fr; }
+    .tco-summary { grid-template-columns: 1fr; }
+    .maturity-banner { flex-direction: column; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ── HEADER ── -->
+  <header class="site-header">
+    <p class="header-eyebrow" id="hdr-eyebrow">AI Adoption Diagnostic · Mid-Market Retail · Project 5</p>
+    <h1 class="header-title" id="hdr-title">Are you capturing<br><em>AI value</em> — or just adopting?</h1>
+    <p class="header-sub" id="hdr-sub">88% of organisations claim AI usage. Only 7% have scaled it effectively. This diagnostic places you on the maturity curve and tells you exactly what to do next.</p>
+    <div class="stat-strip" id="hdr-stats">
+      <div class="stat-item">
+        <div class="stat-num" id="stat1-num">88%</div>
+        <div class="stat-desc" id="stat1-desc">claim AI usage</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num warn" id="stat2-num">7%</div>
+        <div class="stat-desc" id="stat2-desc">have scaled it</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num danger" id="stat3-num">60%</div>
+        <div class="stat-desc" id="stat3-desc">see no material value</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── INTAKE FORM ── -->
+  <div id="intake-screen">
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span id="progress-label">Section 1 of 4 — About Your Organisation</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="step-dots" id="step-dots"></div>
+    </div>
+
+    <!-- SECTION 1: Organisation -->
+    <div id="section-1" class="form-section">
+      <div class="section-header">
+        <p class="section-tag">About your retail business</p>
+        <h2 class="section-title">Tell us about Cleo's company.</h2>
+        <p class="section-desc">This diagnostic is calibrated for mid-market retail (51–250 employees). Recommendations will be sector-specific and scaled to your operational reality.</p>
+      </div>
+
+      <div class="question-block">
+        <p class="q-label">Company or organisation name</p>
+        <input type="text" id="q0" name="q0" class="text-input" placeholder="e.g. Acme Logistics" />
+      </div>
+
+      <div class="question-block">
+        <p class="q-label">1. What type of retail business is this?
+          <span class="q-hint">Select the closest match to your primary product category.</span>
+        </p>
+        <div class="radio-grid">
+          <div class="radio-option"><input type="radio" name="q1" id="q1a" value="Fashion & Apparel retail (mid-market, 51-250 staff)"><label for="q1a">Fashion &amp; Apparel</label></div>
+          <div class="radio-option"><input type="radio" name="q1" id="q1b" value="Electronics & Technology retail (mid-market, 51-250 staff)"><label for="q1b">Electronics &amp; Technology</label></div>
+          <div class="radio-option"><input type="radio" name="q1" id="q1c" value="Food & Grocery retail (mid-market, 51-250 staff)"><label for="q1c">Food &amp; Grocery</label></div>
+          <div class="radio-option"><input type="radio" name="q1" id="q1d" value="Home & Furniture retail (mid-market, 51-250 staff)"><label for="q1d">Home &amp; Furniture</label></div>
+          <div class="radio-option"><input type="radio" name="q1" id="q1e" value="Health, Beauty & Wellness retail (mid-market, 51-250 staff)"><label for="q1e">Health, Beauty &amp; Wellness</label></div>
+          <div class="radio-option"><input type="radio" name="q1" id="q1f" value="Sports & Outdoor retail (mid-market, 51-250 staff)"><label for="q1f">Sports &amp; Outdoor</label></div>
+          <div class="radio-option"><input type="radio" name="q1" id="q1g" value="Multi-category / General merchandise retail (mid-market, 51-250 staff)"><label for="q1g">Multi-category / General</label></div>
+          <div class="radio-option"><input type="radio" name="q1" id="q1h" value="Specialty retail — books, toys, gifts (mid-market, 51-250 staff)"><label for="q1h">Specialty retail</label></div>
+        </div>
+      </div>
+
+      <div class="question-block" style="animation-delay:.05s">
+        <p class="q-label">2. How many stores or sales channels do you operate?
+          <span class="q-hint">Helps calibrate inventory complexity and channel-specific AI use cases.</span>
+        </p>
+        <div class="radio-grid">
+          <div class="radio-option"><input type="radio" name="q2" id="q2a" value="1–3 physical stores, online only or very limited online presence (51-250 staff)"><label for="q2a">1–3 stores / online only</label></div>
+          <div class="radio-option"><input type="radio" name="q2" id="q2b" value="4–10 physical stores plus an established online channel (51-250 staff)"><label for="q2b">4–10 stores + online</label></div>
+          <div class="radio-option"><input type="radio" name="q2" id="q2c" value="10+ physical stores with omnichannel operations (51-250 staff)"><label for="q2c">10+ stores, omnichannel</label></div>
+          <div class="radio-option"><input type="radio" name="q2" id="q2d" value="Primarily e-commerce with no or minimal physical retail presence (51-250 staff)"><label for="q2d">Primarily e-commerce</label></div>
+          <div class="radio-option"><input type="radio" name="q2" id="q2e" value="Wholesale or B2B retail model supplying other retailers (51-250 staff)"><label for="q2e">Wholesale / B2B retail</label></div>
+        </div>
+      </div>
+
+      <div class="question-block" style="animation-delay:.1s">
+        <p class="q-label">3. What is the single biggest operational challenge you face today?
+          <span class="q-hint">Be specific — e.g. "manual invoice processing," "slow customer response times," "inconsistent sales forecasting"</span>
+        </p>
+        <textarea class="text-input" name="q3" id="q3" placeholder="e.g. overstocking seasonal items, poor demand forecasting, high customer churn, slow returns processing..."></textarea>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Current AI Usage -->
+    <div id="section-2" class="form-section" style="display:none">
+      <div class="section-header">
+        <p class="section-tag">Current AI usage in retail</p>
+        <h2 class="section-title">What AI are you using today?</h2>
+        <p class="section-desc">Most retailers use some AI without knowing it. This section separates tool usage from strategic value capture — the distinction that matters for Cleo's investment decision.</p>
+      </div>
+
+      <div class="question-block">
+        <p class="q-label">4. Which AI capabilities are you currently using in your retail operations?</p>
+        <div class="radio-grid single">
+          <div class="radio-option"><input type="radio" name="q4" id="q4a" value="No AI in use — manual processes across inventory, pricing, and customer management"><label for="q4a">No AI in use — fully manual operations</label></div>
+          <div class="radio-option"><input type="radio" name="q4" id="q4b" value="Basic AI tools only — email marketing automation or simple product recommendations from our e-commerce platform"><label for="q4b">Basic platform AI — email automation or simple recommendations only</label></div>
+          <div class="radio-option"><input type="radio" name="q4" id="q4c" value="Running 1–2 AI pilots — e.g. demand forecasting trial or chatbot, but not yet producing measurable results"><label for="q4c">1–2 active AI pilots — demand forecasting or chatbot trials</label></div>
+          <div class="radio-option"><input type="radio" name="q4" id="q4d" value="AI embedded in 2–4 retail processes — e.g. inventory replenishment, dynamic pricing, or personalised recommendations with tracked outcomes"><label for="q4d">AI in 2–4 processes — inventory, pricing or personalisation with tracked outcomes</label></div>
+          <div class="radio-option"><input type="radio" name="q4" id="q4e" value="AI across multiple retail functions — merchandising, supply chain, customer experience with a dedicated strategy and budget"><label for="q4e">AI across merchandising, supply chain and CX with dedicated budget</label></div>
+        </div>
+      </div>
+
+      <div class="question-block" style="animation-delay:.05s">
+        <p class="q-label">5. Who is responsible for AI decisions in your organisation?</p>
+        <div class="radio-grid">
+          <div class="radio-option"><input type="radio" name="q5" id="q5a" value="No one formally — it's ad hoc"><label for="q5a">No one formally — ad hoc</label></div>
+          <div class="radio-option"><input type="radio" name="q5" id="q5b" value="IT or a technical lead (limited business involvement)"><label for="q5b">IT / technical lead only</label></div>
+          <div class="radio-option"><input type="radio" name="q5" id="q5c" value="A cross-functional team with senior sponsorship"><label for="q5c">Cross-functional team, senior sponsor</label></div>
+          <div class="radio-option"><input type="radio" name="q5" id="q5d" value="A dedicated AI team, CDO, or AI Centre of Excellence"><label for="q5d">Dedicated AI team / CDO / CoE</label></div>
+        </div>
+      </div>
+
+      <div class="question-block" style="animation-delay:.1s">
+        <p class="q-label">6. What is your biggest retail operational pain point right now?</p>
+        <div class="radio-grid">
+          <div class="radio-option"><input type="radio" name="q6" id="q6a" value="Inventory management — overstock, stockouts or poor demand forecasting"><label for="q6a">Inventory — overstock, stockouts, poor forecasting</label></div>
+          <div class="radio-option"><input type="radio" name="q6" id="q6b" value="Customer retention — high churn, low repeat purchase rate, weak personalisation"><label for="q6b">Customer retention — high churn, weak personalisation</label></div>
+          <div class="radio-option"><input type="radio" name="q6" id="q6c" value="Pricing pressure — margin erosion, slow markdown decisions, competitor undercutting"><label for="q6c">Pricing — margin erosion, slow markdown decisions</label></div>
+          <div class="radio-option"><input type="radio" name="q6" id="q6d" value="Operational efficiency — manual processes, high labour costs, slow fulfilment"><label for="q6d">Operations — manual processes, high labour costs, fulfilment delays</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: Readiness -->
+    <div id="section-3" class="form-section" style="display:none">
+      <div class="section-header">
+        <p class="section-tag">Retail readiness diagnostic</p>
+        <h2 class="section-title">Data, people & leadership.</h2>
+        <p class="section-desc">42% of retail AI projects fail due to data quality issues. These three questions diagnose exactly the risks that derail mid-market retailers — be honest, this is where the real value is found.</p>
+      </div>
+
+      <div class="question-block">
+        <p class="q-label">7. How would you describe your retail data infrastructure?
+          <span class="q-hint">Sales, inventory, and customer data are the three inputs every retail AI system needs.</span>
+        </p>
+        <div class="radio-grid single">
+          <div class="radio-option"><input type="radio" name="q7" id="q7a" value="Retail data is siloed — sales in one system, inventory in another, customer data in spreadsheets or not tracked at all"><label for="q7a">Siloed — sales, inventory and customer data in separate systems or spreadsheets</label></div>
+          <div class="radio-option"><input type="radio" name="q7" id="q7b" value="Some centralised retail data but gaps exist — e.g. no unified customer view, missing historical inventory data, or incomplete POS records"><label for="q7b">Partially centralised — gaps in customer view, inventory history or POS data</label></div>
+          <div class="radio-option"><input type="radio" name="q7" id="q7c" value="Centralised retail data in an ERP or retail management system — sales, stock and basic customer data accessible but not yet AI-ready"><label for="q7c">Centralised ERP or retail system — data accessible but not yet AI-ready</label></div>
+          <div class="radio-option"><input type="radio" name="q7" id="q7d" value="Clean, connected retail data — unified customer profiles, real-time inventory visibility, historical sales trends documented and governed"><label for="q7d">Clean and connected — unified profiles, real-time inventory, governed historical data</label></div>
+        </div>
+      </div>
+
+      <div class="question-block" style="animation-delay:.05s">
+        <p class="q-label">8. How ready is your retail team to work alongside AI tools?
+          <span class="q-hint">Retail AI fails most often when staff distrust the system or work around it.</span>
+        </p>
+        <div class="radio-grid single">
+          <div class="radio-option"><input type="radio" name="q8" id="q8a" value="Retail staff are resistant or unaware — store managers and buyers make decisions purely on experience with no data tools"><label for="q8a">Resistant or unaware — decisions made on experience, no data tools used</label></div>
+          <div class="radio-option"><input type="radio" name="q8" id="q8b" value="A few digitally confident staff but most rely on manual processes — no structured training or change management plan"><label for="q8b">A few confident staff — no training plan or change management in place</label></div>
+          <div class="radio-option"><input type="radio" name="q8" id="q8c" value="Staff use existing retail tech (ERP, POS dashboards) confidently — open to AI tools with proper training and onboarding"><label for="q8c">Comfortable with retail tech — open to AI with proper training</label></div>
+          <div class="radio-option"><input type="radio" name="q8" id="q8d" value="Digitally fluent team — buyers, merchandisers and store managers already use data to make decisions and are actively asking for AI tools"><label for="q8d">Digitally fluent — buyers and managers already use data and want AI tools</label></div>
+        </div>
+      </div>
+
+      <div class="question-block" style="animation-delay:.1s">
+        <p class="q-label">9. How does your CEO or leadership team view AI investment?
+          <span class="q-hint">Cleo's mindset is exactly what this question is measuring.</span>
+        </p>
+        <div class="radio-grid single">
+          <div class="radio-option"><input type="radio" name="q9" id="q9a" value="Leadership is worried about AI hype — cautious about investing without clearer evidence of ROI in retail"><label for="q9a">Worried about hype — wants clearer evidence of retail ROI before investing</label></div>
+          <div class="radio-option"><input type="radio" name="q9" id="q9b" value="Leadership is interested in AI but treating it as a cost centre — no budget allocated, waiting to see what competitors do"><label for="q9b">Interested but no budget — watching what competitors do first</label></div>
+          <div class="radio-option"><input type="radio" name="q9" id="q9c" value="Leadership sees AI as a competitive priority — allocated budget for a pilot and named a senior sponsor to own the outcome"><label for="q9c">AI is a priority — pilot budget allocated with a named senior sponsor</label></div>
+          <div class="radio-option"><input type="radio" name="q9" id="q9d" value="Leadership is driving AI transformation — specific retail KPIs tied to AI outcomes and board-level visibility on progress"><label for="q9d">Driving transformation — retail KPIs tied to AI outcomes, board visibility</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: Value & Goals -->
+    <div id="section-4" class="form-section" style="display:none">
+      <div class="section-header">
+        <p class="section-tag">Retail value & goals</p>
+        <h2 class="section-title">What would a win look like for Cleo?</h2>
+        <p class="section-desc">Used to generate CFO-legible retail value estimates. The opportunities the tool recommends will be ranked by evidence from the retail market — not guesswork.</p>
+      </div>
+
+      <div class="question-block">
+        <p class="q-label">10. Which operational area would benefit most from AI in your view?</p>
+        <div class="radio-grid">
+          <div class="radio-option"><input type="radio" name="q10" id="q10a" value="Sales and revenue generation"><label for="q10a">Sales & revenue generation</label></div>
+          <div class="radio-option"><input type="radio" name="q10" id="q10b" value="Customer support and service"><label for="q10b">Customer support & service</label></div>
+          <div class="radio-option"><input type="radio" name="q10" id="q10c" value="Finance and back-office operations"><label for="q10c">Finance & back-office operations</label></div>
+          <div class="radio-option"><input type="radio" name="q10" id="q10d" value="Supply chain and manufacturing"><label for="q10d">Supply chain & manufacturing</label></div>
+          <div class="radio-option"><input type="radio" name="q10" id="q10e" value="HR and talent management"><label for="q10e">HR & talent management</label></div>
+          <div class="radio-option"><input type="radio" name="q10" id="q10f" value="Marketing and content"><label for="q10f">Marketing & content</label></div>
+        </div>
+      </div>
+
+      <div class="question-block" style="animation-delay:.05s">
+        <p class="q-label">11. What is your primary goal from AI adoption?</p>
+        <div class="radio-grid single">
+          <div class="radio-option"><input type="radio" name="q11" id="q11a" value="Cost reduction — reduce headcount or operational spend"><label for="q11a">Cost reduction — reduce headcount or operational spend</label></div>
+          <div class="radio-option"><input type="radio" name="q11" id="q11b" value="Revenue growth — increase sales, conversion, or customer lifetime value"><label for="q11b">Revenue growth — sales, conversion, or customer lifetime value</label></div>
+          <div class="radio-option"><input type="radio" name="q11" id="q11c" value="Productivity — do more with the same team, faster decisions"><label for="q11c">Productivity — do more with same team, faster decisions</label></div>
+          <div class="radio-option"><input type="radio" name="q11" id="q11d" value="Risk and compliance — reduce errors, audit trails, regulatory pressure"><label for="q11d">Risk & compliance — reduce errors, audit trails</label></div>
+          <div class="radio-option"><input type="radio" name="q11" id="q11e" value="Customer experience — personalisation, faster response, higher satisfaction"><label for="q11e">Customer experience — personalisation, faster response</label></div>
+        </div>
+      </div>
+
+      <div class="question-block" style="animation-delay:.1s">
+        <p class="q-label">12. What is your approximate annual revenue and tech budget?
+          <span class="q-hint">Used to calculate realistic ROI estimates and right-size the implementation recommendation.</span>
+        </p>
+        <div class="radio-grid">
+          <div class="radio-option"><input type="radio" name="q12" id="q12a" value="Annual revenue under £2M with very limited tech budget (under £20k/year)"><label for="q12a">Under £2M revenue · &lt;£20k tech budget</label></div>
+          <div class="radio-option"><input type="radio" name="q12" id="q12b" value="Annual revenue £2M–£10M with modest tech budget (£20k–£100k/year)"><label for="q12b">£2M–£10M revenue · £20k–£100k tech budget</label></div>
+          <div class="radio-option"><input type="radio" name="q12" id="q12c" value="Annual revenue £10M–£50M with meaningful tech budget (£100k–£500k/year)"><label for="q12c">£10M–£50M revenue · £100k–£500k tech budget</label></div>
+          <div class="radio-option"><input type="radio" name="q12" id="q12d" value="Annual revenue over £50M with substantial tech investment capacity (£500k+ per year)"><label for="q12d">Over £50M revenue · £500k+ tech budget</label></div>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn btn-ghost" onclick="prevSection()">← Back</button>
+        <button class="btn btn-teal" id="submit-btn" onclick="submitDiagnostic()">Generate my report →</button>
+      </div>
+      <div class="error-box" id="error-box">Please answer all questions in this section before continuing.</div>
+    </div>
+
+    <!-- nav row for sections 1-3 -->
+    <div id="nav-row-123" class="nav-row">
+      <button class="btn btn-ghost" id="back-btn" onclick="prevSection()" style="visibility:hidden">← Back</button>
+      <button class="btn btn-primary" onclick="nextSection()">Continue →</button>
+    </div>
+    <div class="error-box" id="error-box-123">Please answer all questions before continuing.</div>
+  </div>
+
+  <!-- ── LOADING ── -->
+  <div id="loading-screen">
+    <div class="spinner"></div>
+    <h2 class="loading-title">Analysing your responses…</h2>
+    <p class="loading-sub">Applying the AI maturity model and readiness diagnostics</p>
+    <div class="loading-steps">
+      <div class="loading-step" id="ls1"><span class="dot"></span>Placing you on the 5-stage maturity model</div>
+      <div class="loading-step" id="ls2"><span class="dot"></span>Scoring data, workforce, and leadership readiness</div>
+      <div class="loading-step" id="ls3"><span class="dot"></span>Identifying your top AI opportunities</div>
+      <div class="loading-step" id="ls4"><span class="dot"></span>Translating benefits into financial estimates</div>
+      <div class="loading-step" id="ls5"><span class="dot"></span>Flagging risk factors and next steps</div>
+    </div>
+  </div>
+
+  <!-- ── REPORT ── -->
+  <div id="report-screen"></div>
+
+</div>
+
+<script>
+  // ── STATE ──────────────────────────────────────────────────────────────────
+  let currentSection = 1;
+  let currentReport = null;
+  const totalSections = 4;
+  const SECTION_QUESTIONS = {
+    1: ['q0','q1','q2','q3'],
+    2: ['q4','q5','q6'],
+    3: ['q7','q8','q9'],
+    4: ['q10','q11','q12']
+  };
+
+  // ── PROGRESS ──────────────────────────────────────────────────────────────
+  const SECTION_LABELS = [
+    'Section 1 of 4 — About Your Organisation',
+    'Section 2 of 4 — Current AI Usage',
+    'Section 3 of 4 — Readiness Diagnostic',
+    'Section 4 of 4 — Value & Goals'
+  ];
+
+  function buildDots() {
+    const el = document.getElementById('step-dots');
+    el.innerHTML = '';
+    for (let i = 0; i <= 12; i++) {
+      const d = document.createElement('div');
+      d.className = 'step-dot';
+      d.id = 'dot-' + i;
+      el.appendChild(d);
+    }
+  }
+
+  function updateProgress() {
+    const answered = countAnswered();
+    const pct = Math.round((answered / 13) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('progress-label').textContent = SECTION_LABELS[currentSection - 1];
+    for (let i = 1; i <= 12; i++) {
+      const d = document.getElementById('dot-' + i);
+      if (!d) continue;
+      const qAnswered = isAnswered('q' + i);
+      d.className = 'step-dot' + (qAnswered ? ' done' : '');
+    }
+  }
+
+  function countAnswered() {
+    let n = 0;
+    for (let i = 0; i <= 12; i++) { if (isAnswered('q' + i)) n++; }
+    return n;
+  }
+
+  function isAnswered(name) {
+    const el = document.querySelector(`[name="${name}"]:checked`) || document.getElementById(name);
+    if (!el) return false;
+    if (el.tagName === 'TEXTAREA' || el.type === 'text') return el.value.trim().length > 0;
+    return !!document.querySelector(`[name="${name}"]:checked`);
+  }
+
+  function sectionComplete(sec) {
+    return SECTION_QUESTIONS[sec].every(q => isAnswered(q));
+  }
+
+  // â”€â”€ CONSULTING AUGMENTATION â”€â”€â”€
+  const SOURCE_EVIDENCE = {
+    adoption: {
+      headline: '78% of respondents say their organizations use AI in at least one business function, but only 1% of executives describe their gen AI rollouts as mature.',
+      reality: 'McKinsey’s latest State of AI survey shows broad adoption, but a complementary developed-markets survey says only 1% of company executives call their gen AI rollouts mature. That means activity is now common, but scaled value is still rare.',
+      value: 'McKinsey also reported that only 46 of 876 respondents said a meaningful share of EBIT could be attributed to gen AI deployments.',
+      source: 'Primary-source evidence: McKinsey Global Survey on the state of AI, 2025'
+    },
+    readiness: {
+      workforce: 'IBM research says more than half of respondents see lack of workforce skills and attitudes as an AI adoption barrier, and 83% of CEOs think AI success depends more on people adoption than on the technology itself.',
+      data: 'IBM also found that more than half of respondents see underpowered or fragmented IT/cloud systems and data privacy or alignment concerns as barriers, while the share of companies with AI-ready IT systems was 26% in 2024 and is projected to rise to 45% by 2026.',
+      leadership: 'The same pattern shows up in governance and leadership: if leaders do not set the metric, the budget, and the operating rule, the project becomes a pilot with no owner.',
+      source: 'Primary-source evidence: IBM AI readiness and CEO research, 2024-2026'
+    }
+  };
+
+  function parseStaffBand(label) {
+    const text = String(label || '').toLowerCase();
+    if (text.includes('1â€“5') || text.includes('1-5')) return 3;
+    if (text.includes('6â€“20') || text.includes('6-20')) return 13;
+    if (text.includes('21â€“100') || text.includes('21-100')) return 60;
+    if (text.includes('100+')) return 150;
+    return 12;
+  }
+
+  function parseOrgSize(label) {
+    const text = String(label || '').toLowerCase();
+    if (text.includes('1â€“10') || text.includes('1-10')) return 5;
+    if (text.includes('11â€“50') || text.includes('11-50')) return 30;
+    if (text.includes('51â€“250') || text.includes('51-250')) return 150;
+    if (text.includes('251â€“1000') || text.includes('251-1000')) return 625;
+    if (text.includes('1000+')) return 1500;
+    return 100;
+  }
+
+  function goalCategory(goal) {
+    const text = String(goal || '').toLowerCase();
+    if (text.includes('cost') || text.includes('productivity')) return 'Cost';
+    if (text.includes('risk') || text.includes('compliance')) return 'Risk';
+    return 'Growth';
+  }
+
+  function stagePurpose(stageNumber) {
+    const n = Number(stageNumber || 0);
+    if (n <= 1) return 'The engagement is really a baseline-and-use-case selection exercise: prove where AI can work, establish measurement, and avoid over-scoping.';
+    if (n === 2) return 'The engagement is to turn experimentation into one measurable pilot with a clean owner, a baseline, and a decision rule for scale.';
+    if (n === 3) return 'The engagement is to remove scaling friction: governance, data, adoption, and operating ownership so the pilot survives contact with the business.';
+    if (n === 4) return 'The engagement is to optimise value capture, standardise metrics, and expand the few use cases already proving their worth.';
+    return 'The engagement is to redesign the operating model around AI, not just automate isolated tasks.';
+  }
+
+  function readinessSink(readiness) {
+    const rd = readiness || {};
+    const dims = [
+      { key: 'data', label: 'Data' },
+      { key: 'workforce', label: 'Workforce' },
+      { key: 'leadership', label: 'Leadership' }
+    ];
+    const scored = dims.map(d => ({ ...d, score: Number(rd[d.key]?.score || 0) }));
+    scored.sort((a, b) => a.score - b.score);
+    const sink = scored[0] || { key: 'data', label: 'Data', score: 0 };
+    const runnerUp = scored[1] || { label: 'Workforce', score: 0 };
+    return { sink, runnerUp, scored };
+  }
+
+  function impactMetricForArea(area) {
+    const text = String(area || '').toLowerCase();
+    if (text.includes('sales')) return 'conversion rate';
+    if (text.includes('customer support')) return 'first response time';
+    if (text.includes('finance')) return 'cycle time';
+    if (text.includes('supply chain') || text.includes('manufacturing')) return 'downtime and defects';
+    if (text.includes('hr')) return 'time-to-fill';
+    if (text.includes('marketing')) return 'content turnaround';
+    return 'throughput';
+  }
+
+  function buildImpactPackage(a, r) {
+    const category = goalCategory(a.q11);
+    const area = a.q10 || 'the chosen process';
+    const metric = impactMetricForArea(area);
+    const staffMid = parseStaffBand(a.q12);
+    const orgMid = parseOrgSize(a.q2);
+    const sizeFactor = orgMid >= 1000 ? 1.6 : orgMid >= 250 ? 1.35 : orgMid >= 50 ? 1.15 : 1;
+    const annualWeeks = 48;
+    const loadedRate = orgMid >= 1000 ? 100 : orgMid >= 250 ? 85 : orgMid >= 50 ? 65 : 45;
+
+    if (category === 'Cost') {
+      const weeklyHours = Math.round(staffMid * (1.25 + (r.maturity?.stage_number || 1) * 0.25) * sizeFactor);
+      const annualHours = weeklyHours * annualWeeks;
+      const annualValue = annualHours * loadedRate;
+      return {
+        category,
+        metric,
+        proxy: `${weeklyHours} staff-hours saved per week`,
+        formula: `${staffMid} people × time saved × 48 working weeks`,
+        value: `Annual labour proxy: about ${annualHours.toLocaleString()} hours or roughly ${annualValue.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })}`,
+        assumption: `Loaded cost assumption: about ${loadedRate.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })} per hour, scaled by organization size.`
+      };
+    }
+
+    if (category === 'Risk') {
+      const errorDrop = Math.min(35, Math.max(10, Math.round(18 + staffMid / 4)));
+      return {
+        category,
+        metric,
+        proxy: `${errorDrop}% reduction in avoidable errors`,
+        formula: `current error / exception rate × reduction target × cost per exception`,
+        value: `Operational proxy: ${errorDrop}% fewer avoidable errors or exceptions in the target process`,
+        assumption: `Use the current defect, exception, or rework rate as the baseline; the financial case comes from avoided rework, audit friction, and penalties.`
+      };
+    }
+
+    const uplift = Math.min(6, Math.max(2, Math.round(2 + (r.maturity?.stage_number || 1) / 2)));
+    const speed = Math.min(30, Math.max(8, Math.round(10 + staffMid / 3)));
+    return {
+      category,
+      metric,
+      proxy: `${uplift} percentage-point uplift in ${metric} or a ${speed}% faster turnaround`,
+      formula: `baseline rate × uplift × gross margin, or baseline cycle time × speed-up`,
+      value: `Commercial proxy: ${uplift} pp improvement in ${metric} plus a ${speed}% faster cycle`,
+      assumption: `This is a starting proxy, not a claim. Replace it with the current baseline metric and the contribution margin for the process once scoped.`
+    };
+  }
+
+  function buildBaselineCheckpoint(a, r) {
+    const readiness = r.readiness || {};
+    const currentUsage = String(a.q4 || '').toLowerCase();
+    const measurableUse = currentUsage.includes('measurable outcomes') || currentUsage.includes('tracked');
+    const strongReadiness =
+      Number(readiness.data?.score || 0) >= 5 &&
+      Number(readiness.workforce?.score || 0) >= 5 &&
+      Number(readiness.leadership?.score || 0) >= 5;
+
+    const ready = measurableUse && strongReadiness;
+    const missing = [];
+    if (!measurableUse) missing.push('No clearly stated baseline metric or measurement cadence.');
+    if (Number(readiness.data?.score || 0) < 5) missing.push('Data quality or accessibility is too weak to attribute change cleanly.');
+    if (Number(readiness.workforce?.score || 0) < 5) missing.push('Workforce adoption risk is still too high to trust the result.');
+    if (Number(readiness.leadership?.score || 0) < 5) missing.push('Leadership sponsorship is not strong enough to own the measurement rule.');
+
+    return {
+      ready,
+      title: ready ? 'Ready to scope a pilot' : 'Not ready to scope yet',
+      summary: ready
+        ? 'You have enough evidence to define a testable scope, a baseline, and an owner for attribution.'
+        : 'The idea is interesting, but the project fails the baseline-and-attribution checkpoint, so scoping would be premature.',
+      missing: missing.slice(0, 3),
+      checklist: [
+        'Current baseline metric and reporting window',
+        'Single owner for measurement',
+        'Attribution rule: what else can change the metric?',
+        'Decision threshold for success or stop'
+      ]
+    };
+  }
+
+  function buildAdoptionGap(r) {
+    const stageNumber = Number(r.maturity?.stage_number || 0);
+    const stageName = r.maturity?.stage_name || 'Unknown';
+    return {
+      headline: SOURCE_EVIDENCE.adoption.headline,
+      reality: SOURCE_EVIDENCE.adoption.reality,
+      value: SOURCE_EVIDENCE.adoption.value,
+      sceptical_note: stageNumber <= 2
+        ? `For a ${stageName} client, this gap is even more important: they are not failing because AI is absent, but because adoption has not yet turned into a measurable operating change.`
+        : `For a ${stageName} client, the question is no longer whether AI exists; it is whether the organization can point to a trustworthy baseline and a repeatable value lift.`,
+      source: SOURCE_EVIDENCE.adoption.source
+    };
+  }
+
+  function buildReadinessDiagnosis(r) {
+    const { sink, runnerUp, scored } = readinessSink(r.readiness);
+    const sinkKey = sink.key || 'data';
+    let why = '';
+    let fix = '';
+    if (sinkKey === 'data') {
+      why = 'Data sinks projects when teams cannot trust the baseline, the systems are fragmented, or the process cannot be measured cleanly enough to attribute change.';
+      fix = 'Fix the data shape first: one owner, one source of truth, one measurement window.';
+    } else if (sinkKey === 'workforce') {
+      why = 'Workforce readiness sinks projects when people do not adopt the tool, do not trust the workflow, or do not know what good usage looks like.';
+      fix = 'Fix adoption first: role-based training, visible champions, and a narrow workflow that people will actually use.';
+    } else {
+      why = 'Leadership sinks projects when sponsorship, budget, and KPIs are not aligned, because the team cannot sustain the change after the pilot.';
+      fix = 'Fix sponsorship first: one executive owner, one KPI, and one decision rule for scale or stop.';
+    }
+
+    return {
+      sink_layer: sink.label,
+      sink_score: sink.score,
+      runner_up: runnerUp.label,
+      runner_up_score: runnerUp.score,
+      why,
+      fix,
+      scores: scored,
+      source_note: SOURCE_EVIDENCE.readiness.source
+    };
+  }
+
+  function parseSizeBand(label) {
+    const text = String(label || '').toLowerCase();
+    if (text.includes('1â€“10') || text.includes('1-10')) return 5;
+    if (text.includes('11â€“50') || text.includes('11-50')) return 30;
+    if (text.includes('51â€“250') || text.includes('51-250')) return 150;
+    if (text.includes('251â€“1000') || text.includes('251-1000')) return 625;
+    if (text.includes('1000+')) return 1500;
+    return 100;
+  }
+
+  function sizeTier(sizeBand) {
+    if (sizeBand <= 10) return 'micro';
+    if (sizeBand <= 50) return 'small';
+    if (sizeBand <= 250) return 'mid-market';
+    if (sizeBand <= 1000) return 'enterprise';
+    return 'large-enterprise';
+  }
+
+  function parseCompanySizeBand(label) {
+    const text = String(label || '').toLowerCase();
+    if (text.includes('1–10') || text.includes('1-10')) return 5;
+    if (text.includes('11–50') || text.includes('11-50')) return 30;
+    if (text.includes('51–250') || text.includes('51-250')) return 150;
+    if (text.includes('251–1000') || text.includes('251-1000')) return 625;
+    if (text.includes('1000+')) return 1500;
+    return 100;
+  }
+
+  function pickCurrency(value) {
+    return `£${Math.round(value).toLocaleString('en-GB')}`;
+  }
+
+  function buildInfrastructureAnalysis(a, r) {
+    const companySize = parseCompanySizeBand(a.q2);
+    const sizeClass = sizeTier(companySize);
+    const dataScore = Number(r.readiness?.data?.score || 0);
+    const workforceScore = Number(r.readiness?.workforce?.score || 0);
+    const leadershipScore = Number(r.readiness?.leadership?.score || 0);
+    const stage = Number(r.maturity?.stage_number || 1);
+    const complexity = Math.max(1, Math.round((companySize / 40) + stage * 0.8));
+    const usage = String(a.q4 || '').toLowerCase();
+    const currentOps = String(a.q10 || '').toLowerCase();
+    const priorityGoal = String(a.q11 || '').toLowerCase();
+    const targetStaff = parseStaffBand(a.q12);
+
+    const useFactor = usage.includes('embedded') ? 1.4 : usage.includes('2â€“4') || usage.includes('2-4') ? 1.2 : usage.includes('pilots') ? 1.05 : 0.9;
+    const readinessFactor = 1 + ((10 - Math.min(10, (dataScore + workforceScore + leadershipScore) / 3)) / 12);
+    const goalFactor = priorityGoal.includes('risk') ? 1.08 : priorityGoal.includes('revenue') ? 1.12 : priorityGoal.includes('cost') ? 0.96 : 1;
+    const processFactor = currentOps.includes('finance') ? 1.02 : currentOps.includes('supply') || currentOps.includes('manufacturing') ? 1.1 : currentOps.includes('customer') ? 0.98 : 1;
+    const scopeFactor = Math.max(0.9, Math.min(1.35, 0.95 + targetStaff / 120));
+
+    const approaches = [
+      {
+        key: 'api_first',
+        name: 'API-first SaaS stack',
+        description: 'Fastest route to value: use vendor tools, managed APIs, and light orchestration around a narrow business process.',
+        strengths: ['Low setup burden', 'Fast pilot time', 'Easiest to stop or change'],
+        weaknesses: ['Recurring usage fees', 'Less control over data flow', 'Can sprawl if not governed'],
+        fit: 0
+      },
+      {
+        key: 'managed_cloud',
+        name: 'Managed cloud platform',
+        description: 'A more durable stack using managed cloud data services, workflow automation, and governed model access.',
+        strengths: ['Better governance', 'Scales with the business', 'Good balance of control and speed'],
+        weaknesses: ['Higher implementation effort', 'Needs stronger data discipline'],
+        fit: 0
+      },
+      {
+        key: 'hybrid',
+        name: 'Hybrid operating model',
+        description: 'Combine a governed internal data layer with external model APIs and selective custom components for sensitive workflows.',
+        strengths: ['Best balance for most organisations', 'Controls sensitive data', 'Keeps change manageable'],
+        weaknesses: ['Requires clear architecture ownership', 'Can become fragmented without a strong sponsor'],
+        fit: 0
+      },
+      {
+        key: 'self_hosted',
+        name: 'Self-hosted / private AI stack',
+        description: 'Build and run more of the stack internally for maximum control, usually only justified in high-scale or high-regulation environments.',
+        strengths: ['Most control', 'Strongest data sovereignty', 'Potential unit economics at scale'],
+        weaknesses: ['Highest fixed cost', 'Slowest to deploy', 'Needs strong technical leadership'],
+        fit: 0
+      }
+    ];
+
+    const yearlyCostModel = {
+      api_first: {
+        setup: (12000 + complexity * 1500 * processFactor) * goalFactor,
+        run: (6000 + companySize * 18 * useFactor * scopeFactor) * goalFactor,
+        support: 8000 + leadershipScore * 700
+      },
+      managed_cloud: {
+        setup: (28000 + complexity * 3200 * processFactor) * goalFactor,
+        run: (15000 + companySize * 30 * useFactor * readinessFactor) * goalFactor,
+        support: 14000 + dataScore * 1000
+      },
+      hybrid: {
+        setup: (42000 + complexity * 4200 * processFactor) * goalFactor,
+        run: (18000 + companySize * 36 * useFactor * readinessFactor) * goalFactor,
+        support: 18000 + workforceScore * 1200
+      },
+      self_hosted: {
+        setup: (85000 + complexity * 7000 * processFactor) * goalFactor,
+        run: (42000 + companySize * 48 * useFactor * readinessFactor) * goalFactor,
+        support: 32000 + (10 - leadershipScore) * 1500 + (10 - dataScore) * 1000
+      }
+    };
+
+    const scoring = {
+      api_first: {
+        speed: 5,
+        control: 3,
+        scalability: 4,
+        compliance: 4,
+        complexity: 2
+      },
+      managed_cloud: {
+        speed: 4,
+        control: 7,
+        scalability: 8,
+        compliance: 7,
+        complexity: 5
+      },
+      hybrid: {
+        speed: 4,
+        control: 8,
+        scalability: 7,
+        compliance: 8,
+        complexity: 6
+      },
+      self_hosted: {
+        speed: 2,
+        control: 10,
+        scalability: 9,
+        compliance: 9,
+        complexity: 9
+      }
+    };
+
+    const riskAdjustments = {
+      api_first: (10 - leadershipScore) * 0.2 + (10 - dataScore) * 0.18,
+      managed_cloud: (10 - dataScore) * 0.22 + (10 - workforceScore) * 0.12,
+      hybrid: (10 - leadershipScore) * 0.16 + (10 - workforceScore) * 0.14,
+      self_hosted: (10 - leadershipScore) * 0.2 + (10 - dataScore) * 0.2 + (10 - workforceScore) * 0.15
+    };
+
+    approaches.forEach(approach => {
+      const model = yearlyCostModel[approach.key];
+      const baseYear = model.setup + model.run + model.support;
+      const tco3 = baseYear * 3 + Math.round(baseYear * riskAdjustments[approach.key] * 0.15);
+      const annual = baseYear;
+      const benefitMultiplier = approach.key === 'api_first' ? 1.0 : approach.key === 'managed_cloud' ? 1.12 : approach.key === 'hybrid' ? 1.16 : 1.1;
+      const netComplexity = scoring[approach.key].complexity + Math.round(riskAdjustments[approach.key]);
+      const fitScore = Math.max(1, Math.min(10,
+        Math.round(
+          (scoring[approach.key].speed * 0.18) +
+          (scoring[approach.key].control * 0.22) +
+          (scoring[approach.key].scalability * 0.2) +
+          (scoring[approach.key].compliance * 0.2) -
+          (netComplexity * 0.12) +
+          (stage <= 2 && approach.key === 'api_first' ? 1.2 : 0) +
+          (stage >= 3 && approach.key === 'hybrid' ? 1.1 : 0) +
+          (stage >= 4 && approach.key === 'managed_cloud' ? 0.8 : 0) +
+          (sizeClass === 'large-enterprise' && approach.key === 'self_hosted' ? 1 : 0)
+        )
+      ));
+
+      approach.setup_cost = pickCurrency(model.setup);
+      approach.annual_cost = pickCurrency(annual);
+      approach.tco_3yr = pickCurrency(tco3);
+      approach.value_multiplier = benefitMultiplier;
+      approach.fit = fitScore;
+      approach.sentence = `${approach.name} fits a ${sizeClass} organisation that needs ${scoring[approach.key].speed <= 3 ? 'higher control' : 'speed and control balance'} without over-building too early.`;
+      approach.recommendation_note = '';
+      approach.governance = approach.key === 'api_first'
+        ? 'Keep scope narrow, watch usage, and avoid tool sprawl.'
+        : approach.key === 'managed_cloud'
+          ? 'Put architecture and data ownership in place before expanding.'
+          : approach.key === 'hybrid'
+            ? 'Define one internal data spine and one vendor policy.'
+            : 'Only justify this if control, regulation, or scale make it unavoidable.';
+    });
+
+    const ranked = [...approaches];
+    // Sort by numeric fit and then manual tie-break on TCO.
+    ranked.sort((a, b) => {
+      if (b.fit !== a.fit) return b.fit - a.fit;
+      const aCost = Number(String(a.tco_3yr).replace(/[^\d]/g, ''));
+      const bCost = Number(String(b.tco_3yr).replace(/[^\d]/g, ''));
+      return aCost - bCost;
+    });
+
+    const best = ranked[0];
+    const second = ranked[1];
+    const readinessAvg = (dataScore + workforceScore + leadershipScore) / 3;
+    const recommendationReason = [];
+    if (best.key === 'api_first') {
+      recommendationReason.push('Fastest path to evidence without heavy implementation overhead.');
+      if (readinessAvg < 5) recommendationReason.push('Your readiness profile is still uneven, so lower fixed cost matters.');
+    } else if (best.key === 'managed_cloud') {
+      recommendationReason.push('Balanced control, scale, and governance for a team that is ready to operationalise.');
+    } else if (best.key === 'hybrid') {
+      recommendationReason.push('Best fit when you need control over data and change, but still want vendor speed.');
+    } else {
+      recommendationReason.push('Only the control and sovereignty requirements justify the heavier fixed cost.');
+    }
+    recommendationReason.push(`Compared with ${second.name}, this option gives the better fit-to-cost balance for your current maturity level.`);
+
+    const analysisSummary = readySummary(sizeClass, readinessAvg, stage);
+
+    return {
+      size_class: sizeClass,
+      readiness_average: readinessAvg,
+      summary: analysisSummary,
+      recommended: best,
+      runner_up: second,
+      approaches: ranked.map(approach => ({
+        key: approach.key,
+        name: approach.name,
+        description: approach.description,
+        strengths: approach.strengths,
+        weaknesses: approach.weaknesses,
+        setup_cost: approach.setup_cost,
+        annual_cost: approach.annual_cost,
+        tco_3yr: approach.tco_3yr,
+        fit: approach.fit,
+        governance: approach.governance,
+        sentence: approach.sentence
+      })),
+      recommendation_reason: recommendationReason,
+      tco_notes: [
+        `Assumes ${companySize} employees as the organisational proxy and ${targetStaff} staff in the target process.`,
+        `Cost model is directional and uses readiness, maturity, process complexity, and usage intensity as the main drivers.`,
+        `TCO is shown on a 3-year basis to capture setup, run, and support rather than just launch cost.`
+      ]
+    };
+  }
+
+  function readySummary(sizeClass, readinessAvg, stage) {
+    if (stage <= 2 && readinessAvg < 5) {
+      return `For a ${sizeClass} organisation at an early maturity stage, the cheapest robust option usually wins because the key risk is execution, not scale economics.`;
+    }
+    if (stage >= 4 && readinessAvg >= 6.5) {
+      return `At this maturity level, the decision becomes less about whether you can use infrastructure and more about how much control and governance you need.`;
+    }
+    return `For a ${sizeClass} organisation at this stage, the best choice is usually the option that balances fixed cost, governance, and time-to-value.`;
+  }
+
+  function buildInfrastructureRecommendation(r, a) {
+    const infra = buildInfrastructureAnalysis(a, r);
+    const focus = String(a.q10 || '').toLowerCase();
+    const goal = String(a.q11 || '').toLowerCase();
+    const infraRecommendation = [
+      infra.summary,
+      `Recommended approach: ${infra.recommended.name}.`,
+      infra.recommendation_reason.join(' '),
+      goal.includes('risk') ? 'The recommendation leans toward stronger governance because the business objective is risk and compliance.' : '',
+      focus.includes('finance') || focus.includes('supply') ? 'Operational process automation justifies a more governed platform than a throwaway tool stack.' : ''
+    ].filter(Boolean).join(' ');
+
+    return {
+      infrastructure_analysis: infra,
+      recommendation: infraRecommendation
+    };
+  }
+
+  function buildSummaryBreakdown(a, r) {
+    const companySize = parseCompanySizeBand(a.q2);
+    const staffMid = parseStaffBand(a.q12);
+    const stage = Number(r.maturity?.stage_number || 1);
+    const loadedRate = companySize >= 1000 ? 100 : companySize >= 250 ? 85 : companySize >= 50 ? 65 : 45;
+    const coordPeople = Math.max(1, Math.round(companySize / 180));
+    const weeks = 10;
+    const hoursPerWeek = 12;
+    const internalCost = coordPeople * hoursPerWeek * weeks * 75;
+    const currentVolume = Math.max(600, Math.round(staffMid * 80));
+    const currentHoursPerUnit = Number((Math.max(0.9, 2 - stage * 0.14)).toFixed(1));
+    const adoptionRate = Math.min(80, Math.round(28 + stage * 12));
+    const currentAOV = ['retail', 'e-commerce'].some(t => String(a.q1 || '').toLowerCase().includes(t)) ? 120 :
+      String(a.q1 || '').toLowerCase().includes('financial') ? 520 :
+      String(a.q1 || '').toLowerCase().includes('healthcare') ? 260 :
+      String(a.q1 || '').toLowerCase().includes('manufacturing') ? 320 :
+      String(a.q1 || '').toLowerCase().includes('services') ? 380 :
+      240;
+    const expectedLift = Math.min(8, Math.max(3, Math.round(2 + stage * 1.2)));
+    const customersAffected = Math.max(600, staffMid * 22);
+    const attributionShare = Math.min(85, Math.round(52 + stage * 4));
+    const fraudRate = Number((Math.min(5.5, Math.max(1.2, 2 + (4 - stage) * 0.45))).toFixed(2));
+    const costPerIncident = Math.max(900, Math.round(1200 + companySize * 2.3));
+    const detectionImprovement = Math.min(30, Math.round(14 + stage * 3));
+    const falsePositiveCost = Math.max(20, Math.round(24 + staffMid * 1.3));
+
+    return {
+      overview: 'This summary page turns the report into an executive narrative and a measurable cost breakdown. It includes the estimated internal personnel cost to work with the consultant and three concrete AI impact categories with four supporting numbers each.',
+      personnel: {
+        description: `The internal coordination cost assumes ${coordPeople} staff members spending ${hoursPerWeek} hours per week for ${weeks} weeks to work directly with the consultant and capture the pilot scope, measurement plan, and operating handover.`, 
+        staff_count: coordPeople,
+        hours_per_week: hoursPerWeek,
+        weeks,
+        rate: '£75/hr',
+        total_cost: `${internalCost.toLocaleString('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 })}`
+      },
+      impact_breakdown: [
+        {
+          category: 'Cost reduction',
+          claim: 'Save staff time and reduce labour cost in the target process.',
+          numbers: [
+            { label: 'Current volume', value: `${currentVolume.toLocaleString()} transactions/year` },
+            { label: 'Hours per unit today', value: `${currentHoursPerUnit} hrs` },
+            { label: 'Loaded labour rate', value: `£${loadedRate}/hr` },
+            { label: 'Realistic adoption rate', value: `${adoptionRate}% of the process` }
+          ],
+          note: 'Use these numbers to test a labour-cost savings case with an honest adoption assumption.'
+        },
+        {
+          category: 'Revenue generation',
+          claim: 'Increase average order or process value through improved conversion or capture.',
+          numbers: [
+            { label: 'Current AOV', value: `£${currentAOV}` },
+            { label: 'Expected lift', value: `${expectedLift}%` },
+            { label: 'Customers affected', value: `${customersAffected.toLocaleString()}` },
+            { label: 'Attribution share', value: `${attributionShare}% of uplift` }
+          ],
+          note: 'Translate the lift into revenue only for the part of the process the AI can credibly influence.'
+        },
+        {
+          category: 'Risk mitigation',
+          claim: 'Reduce incident costs by improving detection and preventing avoidable losses.',
+          numbers: [
+            { label: 'Current incident rate', value: `${fraudRate}%` },
+            { label: 'Cost per incident', value: `£${costPerIncident.toLocaleString()}` },
+            { label: 'Detection improvement', value: `${detectionImprovement}%` },
+            { label: 'False-positive cost', value: `£${falsePositiveCost}` }
+          ],
+          note: 'This makes a risk case real by showing both the damage avoided and the cost of over-detection.'
+        }
+      ]
+    };
+  }
+
+  function augmentReport(r, a) {
+    const impact = buildImpactPackage(a, r);
+    const baseline = buildBaselineCheckpoint(a, r);
+    const diagnosis = buildReadinessDiagnosis(r);
+    const infrastructure = buildInfrastructureRecommendation(r, a);
+    const summary = buildSummaryBreakdown(a, r);
+    return {
+      ...r,
+      summary_report: summary,
+      consulting_lens: {
+        adoption_gap: buildAdoptionGap(r),
+        engagement_purpose: {
+          stage_number: Number(r.maturity?.stage_number || 0),
+          stage_name: r.maturity?.stage_name || '',
+          message: stagePurpose(r.maturity?.stage_number)
+        },
+        impact_category: {
+          category: impact.category,
+          metric: impact.metric,
+          proxy: impact.proxy,
+          formula: impact.formula,
+          value: impact.value,
+          assumption: impact.assumption
+        },
+        cfo_proxies: [
+          {
+            title: 'Primary numeric proxy',
+            value: impact.proxy,
+            note: `Use ${impact.metric} as the CFO-facing unit of measure.`
+          },
+          {
+            title: 'Formula',
+            value: impact.formula,
+            note: impact.assumption
+          },
+          {
+            title: 'Financial translation',
+            value: impact.value,
+            note: `This is the starting valuation frame for a ${impact.category.toLowerCase()}-led business case.`
+          }
+        ],
+        baseline_checkpoint: baseline,
+        readiness_diagnosis: diagnosis
+      },
+      infrastructure_lens: {
+        summary: infrastructure.recommendation,
+        analysis: infrastructure.infrastructure_analysis
+      }
+    };
+  }
+
+  // ── NAVIGATION ────────────────────────────────────────────────────────────
+  // ── HEADER NARRATION ──────────────────────────────────────────────────────
+  const NARRATION = {
+    1: {
+      eyebrow: "Step 1 of 4 — Retail Business Context",
+      title: "Is your retail business<br><em>AI-ready</em> — or AI-exposed?",
+      sub: "89% of retailers are actively using or testing AI. But only 33% have fully implemented it. Mid-market retailers face unique pressure: too big to ignore AI, too lean to get it wrong.",
+      stats: [
+        { num: "89%",  cls: "",       desc: "retailers using or testing AI" },
+        { num: "33%",  cls: "warn",   desc: "have fully implemented it" },
+        { num: "$18B", cls: "",       desc: "global AI in retail market 2026" }
+      ]
+    },
+    2: {
+      eyebrow: "Step 2 of 4 — Current AI Usage",
+      title: "Retail AI adoption is<br><em>moving fast.</em>",
+      sub: "77% of ecommerce professionals use AI daily. Mid-market retailers who delay risk losing ground to both large chains with scale and nimble startups with nothing to lose.",
+      stats: [
+        { num: "77%",  cls: "",       desc: "use AI tools daily in retail" },
+        { num: "$3.50", cls: "warn",  desc: "return per $1 in AI customer service" },
+        { num: "5%",   cls: "danger", desc: "average AI budget share in retail" }
+      ]
+    },
+    3: {
+      eyebrow: "Step 3 of 4 — Readiness Diagnostic",
+      title: "Retail AI fails on<br><em>data, not tech.</em>",
+      sub: "Poor inventory data, siloed customer records, and lack of an executive sponsor are the top three reasons retail AI projects stall. This section diagnoses exactly those risks.",
+      stats: [
+        { num: "42%",  cls: "danger", desc: "retail AI projects fail due to data quality" },
+        { num: "2×",   cls: "warn",   desc: "more ROI with executive sponsorship" },
+        { num: "60%",  cls: "",       desc: "of retail value from ops & supply chain AI" }
+      ]
+    },
+    4: {
+      eyebrow: "Step 4 of 4 — Value & Goals",
+      title: "Where does retail AI<br><em>actually pay off?</em>",
+      sub: "Inventory optimisation, demand forecasting, and customer personalisation deliver the highest ROI for mid-market retailers — not chatbots. Let's find your highest-value opportunity.",
+      stats: [
+        { num: "15%",  cls: "",       desc: "avg inventory cost reduction with AI" },
+        { num: "20%",  cls: "warn",   desc: "revenue uplift from AI personalisation" },
+        { num: "£0",   cls: "danger", desc: "value without measurable metrics" }
+      ]
+    }
+  };
+
+  function updateHeader(n) {
+    const d = NARRATION[n];
+    if (!d) return;
+
+    const eyebrow = document.getElementById('hdr-eyebrow');
+    const title   = document.getElementById('hdr-title');
+    const sub     = document.getElementById('hdr-sub');
+
+    // fade out
+    [eyebrow, title, sub].forEach(el => {
+      el.style.transition = 'opacity 0.2s ease';
+      el.style.opacity = '0';
+    });
+
+    setTimeout(() => {
+      eyebrow.textContent    = d.eyebrow;
+      title.innerHTML        = d.title;
+      sub.textContent        = d.sub;
+
+      // update stats
+      d.stats.forEach((s, i) => {
+        const numEl  = document.getElementById('stat' + (i+1) + '-num');
+        const descEl = document.getElementById('stat' + (i+1) + '-desc');
+        if (numEl) {
+          numEl.textContent = s.num;
+          numEl.className   = 'stat-num' + (s.cls ? ' ' + s.cls : '');
+        }
+        if (descEl) descEl.textContent = s.desc;
+      });
+
+      // fade in
+      [eyebrow, title, sub].forEach(el => { el.style.opacity = '1'; });
+    }, 200);
+  }
+
+  function showSection(n) {
+    for (let i = 1; i <= totalSections; i++) {
+      const el = document.getElementById('section-' + i);
+      if (el) el.style.display = i === n ? '' : 'none';
+    }
+    const nav123 = document.getElementById('nav-row-123');
+    const nav4   = document.querySelector('#section-4 .nav-row');
+    const errBox = document.getElementById('error-box-123');
+    if (errBox) errBox.style.display = 'none';
+    document.getElementById('error-box')?.style && (document.getElementById('error-box').style.display = 'none');
+
+    if (n < 4) {
+      nav123.style.display = '';
+      document.getElementById('back-btn').style.visibility = n === 1 ? 'hidden' : 'visible';
+    } else {
+      nav123.style.display = 'none';
+    }
+    currentSection = n;
+    updateHeader(n);
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function nextSection() {
+    if (!sectionComplete(currentSection)) {
+      document.getElementById('error-box-123').style.display = 'block';
+      return;
+    }
+    if (currentSection < totalSections) showSection(currentSection + 1);
+  }
+
+  function prevSection() {
+    if (currentSection > 1) showSection(currentSection - 1);
+  }
+
+  // ── COLLECT ANSWERS ────────────────────────────────────────────────────────
+  function collectAnswers() {
+    const answers = {};
+    for (let i = 0; i <= 12; i++) {
+      const el = document.querySelector(`[name="q${i}"]:checked`) || document.getElementById('q' + i);
+      if (el && (el.tagName === 'TEXTAREA' || el.type === 'text')) {
+        answers['q' + i] = el.value.trim();
+      } else if (el) {
+        answers['q' + i] = el.value;
+      }
+    }
+    return answers;
+  }
+
+  function stripCodeFences(text) {
+    return String(text || '')
+      .replace(/^\s*```(?:json)?\s*/i, '')
+      .replace(/\s*```\s*$/i, '')
+      .trim();
+  }
+
+  function findJsonPayload(text) {
+    const input = String(text || '');
+    let start = -1;
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+
+    for (let i = 0; i < input.length; i++) {
+      const ch = input[i];
+
+      if (start === -1) {
+        if (ch === '{' || ch === '[') {
+          start = i;
+          depth = 1;
+        }
+        continue;
+      }
+
+      if (inString) {
+        if (escaped) {
+          escaped = false;
+        } else if (ch === '\\') {
+          escaped = true;
+        } else if (ch === '"') {
+          inString = false;
+        }
+        continue;
+      }
+
+      if (ch === '"') {
+        inString = true;
+        continue;
+      }
+
+      if (ch === '{' || ch === '[') depth++;
+      if (ch === '}' || ch === ']') depth--;
+
+      if (start !== -1 && depth === 0) {
+        return input.slice(start, i + 1);
+      }
+    }
+
+    return '';
+  }
+
+  function normalizeJsonText(text) {
+    return stripCodeFences(text)
+      .replace(/[“”]/g, '"')
+      .replace(/[‘’]/g, "'")
+      .replace(/,\s*([}\]])/g, '$1')
+      .trim();
+  }
+
+  // ── SUBMIT ─────────────────────────────────────────────────────────────────
+  async function submitDiagnostic() {
+    if (!sectionComplete(4)) {
+      document.getElementById('error-box').style.display = 'block';
+      return;
+    }
+    const answers = collectAnswers();
+
+    document.getElementById('intake-screen').style.display = 'none';
+    document.getElementById('loading-screen').style.display = 'block';
+
+    // animate loading steps
+    const steps = ['ls1','ls2','ls3','ls4','ls5'];
+    steps.forEach((id, i) => {
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        el.style.opacity = '1';
+        el.classList.add('active');
+      }, i * 900 + 300);
+    });
+
+    const prompt = buildPrompt(answers);
+
+    try {
+      const response = await fetch('/api/diagnose', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5',
+          max_tokens: 4000,
+          system: `You are an expert AI adoption consultant specialising in mid-market retail (51–250 employees). You have deep knowledge of the global retail AI market, where the AI in retail market reached $18.4B in 2026, 89% of retailers are using or testing AI, but only 33% have fully implemented it.
+
+You apply a five-stage AI maturity model (Stage 1: Aware, Stage 2: Experimenting, Stage 3: Scaling, Stage 4: Optimising, Stage 5: Transformational).
+
+You assess readiness across three retail-specific layers: retail data infrastructure (sales, inventory, customer data), workforce readiness (buyers, merchandisers, store managers), and leadership commitment (CEO/board appetite for investment).
+
+Your top retail AI opportunities to recommend (ranked by evidence of ROI for mid-market):
+1. AI-powered demand forecasting and inventory optimisation (15% avg inventory cost reduction)
+2. Customer personalisation and product recommendations (20% revenue uplift evidence)
+3. Dynamic pricing and markdown optimisation (3-8% margin improvement)
+4. AI customer service and returns automation ($3.50 return per $1 invested)
+5. Visual merchandising and content generation (40-60% content production cost reduction)
+
+You prioritise operational retail AI (inventory, demand, pricing, supply chain) over surface-level tools like generic chatbots.
+You translate all benefits into CFO-legible financial terms using retail benchmarks with stated assumptions.
+You NEVER claim leadership and governance failures are caused by technology — they are people and process problems.
+You reference the Project 5 brief context: this report is being prepared for a meeting with Cleo, CEO of a mid-market retail company who is worried about AI hype and wants evidence-backed recommendations.
+You identify failure risk flags (data quality, change management, integration complexity) explicitly and honestly.
+
+CRITICAL: Respond with ONLY valid JSON. No preamble, no markdown, no explanation. Just the raw JSON object.`,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        const msg = errData?.error?.message || errData?.error || `HTTP ${response.status}`;
+        throw new Error(msg);
+      }
+
+      const data = await response.json();
+
+      // Robust extraction: handle multiple provider response shapes
+      let text = '';
+      try {
+        if (!data) {
+          text = '';
+        } else if (typeof data === 'string') {
+          text = data;
+        } else if (data.output_text) {
+          text = data.output_text;
+        } else if (data.completion && typeof data.completion === 'string') {
+          text = data.completion;
+        } else if (data.content) {
+          if (Array.isArray(data.content)) text = data.content.map(b => b?.text || (typeof b === 'string' ? b : '')).join('');
+          else if (typeof data.content === 'string') text = data.content;
+          else text = JSON.stringify(data.content);
+        } else if (data.choices && Array.isArray(data.choices)) {
+          const first = data.choices[0] || {};
+          if (first.message && first.message.content) {
+            if (Array.isArray(first.message.content)) text = first.message.content.map(c => c?.text || '').join('');
+            else if (typeof first.message.content === 'string') text = first.message.content;
+            else text = JSON.stringify(first.message.content);
+          } else if (first.text) {
+            text = first.text;
+          } else {
+            text = JSON.stringify(first);
+          }
+        } else if (data.result && data.result.output) {
+          text = Array.isArray(data.result.output) ? data.result.output.map(o => o.content || '').join('') : String(data.result.output);
+        } else {
+          // Fallback: stringify whole payload
+          text = JSON.stringify(data);
+        }
+      } catch (err) {
+        console.error('Error extracting AI text:', err);
+        text = JSON.stringify(data);
+      }
+
+      const candidates = [];
+      const normalized = normalizeJsonText(text);
+      if (normalized) candidates.push(normalized);
+      const extracted = findJsonPayload(normalized);
+      if (extracted && extracted !== normalized) candidates.unshift(extracted);
+
+      let report;
+      let parseErr = null;
+      try {
+        for (const candidate of candidates) {
+          try {
+            report = JSON.parse(candidate);
+            parseErr = null;
+            break;
+          } catch (err) {
+            parseErr = err;
+            const noTrailingCommas = candidate.replace(/,\s*([}\]])/g, '$1');
+            if (noTrailingCommas !== candidate) {
+              try {
+                report = JSON.parse(noTrailingCommas);
+                parseErr = null;
+                break;
+              } catch (err2) {
+                parseErr = err2;
+              }
+            }
+          }
+        }
+        if (!report) {
+          throw parseErr || new Error('No JSON object found in AI response');
+        }
+      } catch (parseErrFinal) {
+        console.error('Raw AI response payload:', data);
+        console.error('Extracted text:', text);
+        console.error('Parse error:', parseErrFinal.message);
+        // Surface useful debugging info to the UI while keeping message concise
+        const errBox = document.getElementById('error-box');
+        errBox.textContent = 'Error: The AI response could not be parsed. See console for raw output.';
+        errBox.style.display = 'block';
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('intake-screen').style.display = 'block';
+        throw new Error('The AI response could not be parsed. Check the browser console (F12) for the raw output.');
+      }
+
+      report = augmentReport(report, answers);
+      renderReport(report, answers);
+
+    } catch (err) {
+      document.getElementById('loading-screen').style.display = 'none';
+      document.getElementById('intake-screen').style.display = 'block';
+      showSection(4);
+      const errBox = document.getElementById('error-box');
+      errBox.textContent = 'Error: ' + (err.message || 'Something went wrong. Check the terminal in VS Code for details.');
+      errBox.style.display = 'block';
+      console.error('Diagnostic error:', err);
+    }
+  }
+
+  // ── PROMPT BUILDER ─────────────────────────────────────────────────────────
+  function buildPrompt(a) {
+    const q0 = JSON.stringify(String(a.q0 || ''));
+    const q1 = JSON.stringify(String(a.q1 || ''));
+    const q2 = JSON.stringify(String(a.q2 || ''));
+    const q3 = JSON.stringify(String(a.q3 || ''));
+    const q4 = JSON.stringify(String(a.q4 || ''));
+    const q5 = JSON.stringify(String(a.q5 || ''));
+    const q6 = JSON.stringify(String(a.q6 || ''));
+    const q7 = JSON.stringify(String(a.q7 || ''));
+    const q8 = JSON.stringify(String(a.q8 || ''));
+    const q9 = JSON.stringify(String(a.q9 || ''));
+    const q10 = JSON.stringify(String(a.q10 || ''));
+    const q11 = JSON.stringify(String(a.q11 || ''));
+    const q12 = JSON.stringify(String(a.q12 || ''));
+
+    return `You are preparing an AI readiness report for Cleo, CEO of a mid-market retail business (51-250 employees). This report will be presented at a meeting where Cleo needs evidence-backed guidance on whether AI investment is worth pursuing. Return ONLY a valid JSON object — no markdown, no explanation, no extra text.
+
+Inputs:
+Company name: ${q0}
+Industry: ${q1}
+Size: ${q2}
+Main challenge: ${q3}
+Current AI usage: ${q4}
+AI ownership: ${q5}
+Past failures: ${q6}
+Data quality: ${q7}
+Workforce readiness: ${q8}
+Leadership commitment: ${q9}
+Priority area: ${q10}
+Primary goal: ${q11}
+Staff in target process: ${q12}
+
+Return this exact JSON structure with no additional text before or after:
+
+{
+  "company_profile": {"name": ${q0}, "industry": ${q1}, "size": ${q2}, "main_challenge": ${q3}},
+  "maturity": {
+    "stage_number": <1-5>,
+    "stage_name": "<Aware|Experimenting|Scaling|Optimising|Transformational>",
+    "stage_description": "<2-3 sentences specific to this organisation>"
+  },
+  "readiness": {
+    "data":       {"score": <1-10>, "verdict": "<2 sentences>"},
+    "workforce":  {"score": <1-10>, "verdict": "<2 sentences>"},
+    "leadership": {"score": <1-10>, "verdict": "<2 sentences>"}
+  },
+  "opportunities": [
+    {"title": "<title>", "description": "<2 sentences>", "pillar": "<Inventory & Demand|Customer Personalisation|Pricing & Margins|Customer Service|Supply Chain|Content & Merchandising>", "effort": "<Low|Medium|High>", "value_estimate": "<CFO-legible estimate with stated assumptions>", "why_this_first": "<1 sentence>"},
+    {"title": "<title>", "description": "<2 sentences>", "pillar": "<Inventory & Demand|Customer Personalisation|Pricing & Margins|Customer Service|Supply Chain|Content & Merchandising>", "effort": "<Low|Medium|High>", "value_estimate": "<estimate>", "why_this_first": "<1 sentence>"},
+    {"title": "<title>", "description": "<2 sentences>", "pillar": "<Inventory & Demand|Customer Personalisation|Pricing & Margins|Customer Service|Supply Chain|Content & Merchandising>", "effort": "<Low|Medium|High>", "value_estimate": "<estimate>", "why_this_first": "<1 sentence>"}
+  ],
+  "risk_flags": [
+    {"severity": "<high|medium|low>", "title": "<title>", "description": "<specific risk>"},
+    {"severity": "<high|medium|low>", "title": "<title>", "description": "<specific risk>"}
+  ],
+  "value_frame": {
+    "headline": "<one CFO-legible sentence>",
+    "body": "<3-4 sentences translating goals into financial terms with honest assumptions>"
+  },
+  "next_step": {
+    "title": "<specific action>",
+    "body": "<2-3 sentences on what to do in the next 30 days>"
+  }
+}`;
+  }
+
+  // ── RENDER REPORT ──────────────────────────────────────────────────────────
+  function renderReport(r, answers) {
+    currentReport = r;
+    document.getElementById('loading-screen').style.display = 'none';
+
+    const scoreColor = s => s >= 7 ? 'green' : s >= 4 ? 'amber' : 'red';
+    const barColor   = s => s >= 7 ? 'var(--teal)' : s >= 4 ? 'var(--amber)' : 'var(--red)';
+    const riskIcon   = sev => sev === 'high' ? '⚠' : sev === 'medium' ? '●' : '○';
+
+    const oppsHTML = (r.opportunities || []).map((o, i) => `
+      <div class="opp-card">
+        <div class="opp-rank">${i + 1}</div>
+        <div class="opp-title">${o.title}</div>
+        <div class="opp-desc">${o.description}</div>
+        <div class="opp-meta">
+          <span class="opp-badge">${o.pillar}</span>
+          <span class="opp-badge effort-${(o.effort||'').toLowerCase()}">Effort: ${o.effort}</span>
+          <span class="opp-badge">${o.why_this_first}</span>
+        </div>
+        <div class="opp-value"><strong>Value estimate:</strong> ${o.value_estimate}</div>
+      </div>`).join('');
+
+    const risksHTML = (r.risk_flags || []).map(f => `
+      <div class="risk-flag ${f.severity}">
+        <span class="risk-icon">${riskIcon(f.severity)}</span>
+        <div><strong>${f.title}</strong><p>${f.description}</p></div>
+      </div>`).join('');
+
+    const rd = r.readiness || {};
+    const dims = ['data', 'workforce', 'leadership'];
+    const dimLabels = { data: 'Data readiness', workforce: 'Workforce readiness', leadership: 'Leadership commitment' };
+
+    const readinessHTML = dims.map(d => {
+      const item = rd[d] || {};
+      const sc = item.score || 0;
+      return `
+      <div class="readiness-card">
+        <div class="readiness-label">${dimLabels[d]}</div>
+        <div class="readiness-score-row">
+          <div class="readiness-score ${scoreColor(sc)}">${sc}</div>
+          <div class="readiness-score-max">/ 10</div>
+        </div>
+        <div class="readiness-bar-track">
+          <div class="readiness-bar-fill" style="width:${sc * 10}%;background:${barColor(sc)}"></div>
+        </div>
+        <div class="readiness-verdict">${item.verdict || ''}</div>
+      </div>`;
+    }).join('');
+
+    const mat = r.maturity || {};
+    const co = r.company_profile || {};
+    const summary = r.summary_report || {};
+    const nxt = r.next_step || {};
+    const vf  = r.value_frame || {};
+    const cl  = r.consulting_lens || {};
+    const adoption = cl.adoption_gap || {};
+    const purpose = cl.engagement_purpose || {};
+    const impact = cl.impact_category || {};
+    const proxies = cl.cfo_proxies || [];
+    const baseline = cl.baseline_checkpoint || {};
+    const diagnosis = cl.readiness_diagnosis || {};
+    const infra = r.infrastructure_lens || {};
+    const infraAnalysis = infra.analysis || {};
+    const infraOptions = infraAnalysis.approaches || [];
+    const infraRecommended = infraAnalysis.recommended || {};
+    const infraRunnerUp = infraAnalysis.runner_up || {};
+
+    const baselineClass = baseline.ready ? 'good' : 'bad';
+    const sinkClass = (diagnosis.sink_layer || '').toLowerCase().includes('lead') ? 'bad' : (diagnosis.sink_layer || '').toLowerCase().includes('work') ? 'warn' : 'good';
+    const impactClass = impact.category === 'Risk' ? 'bad' : impact.category === 'Cost' ? 'good' : 'warn';
+    const proxyHTML = proxies.map(p => `
+      <li><strong>${p.title}:</strong> ${p.value}${p.note ? ` <span style="color:var(--ink3)">(${p.note})</span>` : ''}</li>
+    `).join('');
+    const diagnosisScores = (diagnosis.scores || []).map(s => `<span class="consulting-pill">${s.label}: ${s.score}/10</span>`).join('');
+    const infraCardsHTML = infraOptions.map((o, i) => {
+      const isBest = o.key === infraRecommended.key;
+      return `
+        <div class="infra-card ${isBest ? 'recommended' : ''}">
+          <div class="infra-head">
+            <div>
+              <h3>${i + 1}. ${o.name}</h3>
+              <p style="font-size:13px;color:var(--ink2);margin-top:6px">${o.description}</p>
+            </div>
+            <div class="infra-score">${o.fit || 0}/10</div>
+          </div>
+          <div class="infra-metric-row">
+            <span class="infra-metric"><strong>Setup</strong> ${o.setup_cost || ''}</span>
+            <span class="infra-metric"><strong>Annual</strong> ${o.annual_cost || ''}</span>
+            <span class="infra-metric"><strong>3yr TCO</strong> ${o.tco_3yr || ''}</span>
+          </div>
+          <div class="infra-metric-row">
+            <span class="consulting-pill ${isBest ? 'good' : ''}">${isBest ? 'Recommended' : 'Consider'}</span>
+            <span class="consulting-pill">Governance: ${o.governance || ''}</span>
+          </div>
+          <ul class="infra-notes">
+            ${(o.strengths || []).map(s => `<li>${s}</li>`).join('')}
+            ${(o.weaknesses || []).map(w => `<li>${w}</li>`).join('')}
+          </ul>
+          <p style="font-size:12px;color:var(--ink2);margin-top:8px">${o.sentence || ''}</p>
+        </div>
+      `;
+    }).join('');
+
+    const html = `
+      <div class="report-header">
+        <p class="report-eyebrow">AI Readiness Report · ${new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})}</p>
+        <h1 class="report-title">AI Diagnostic for<br><span class="report-company">${co.name || co.industry} · ${co.size}</span></h1>
+        <p class="report-date">Primary challenge: ${co.main_challenge}</p>
+      </div>
+
+      <div class="report-section">
+        <div class="rs-label">Summary & cost breakdown</div>
+        <div class="consulting-grid">
+          <div class="consulting-card feature">
+            <h3>Executive summary</h3>
+            <p>${summary.overview || 'This page summarises the key outcomes of the AI diagnostic and makes the benefit categories measurable with four supporting numbers each.'}</p>
+          </div>
+          <div class="consulting-card">
+            <h3>Consultant engagement cost</h3>
+            <p>${summary.personnel?.description || 'Estimated internal coordination cost for the consulting engagement.'}</p>
+            <ul class="consulting-list">
+              <li><strong>Staff involved:</strong> ${summary.personnel?.staff_count || '–'} people</li>
+              <li><strong>Time commitment:</strong> ${summary.personnel?.hours_per_week || '–'} hrs/week for ${summary.personnel?.weeks || '–'} weeks</li>
+              <li><strong>Estimated cost:</strong> ${summary.personnel?.total_cost || '–'}</li>
+            </ul>
+          </div>
+        </div>
+        <div class="infra-grid">
+          ${summary.impact_breakdown ? summary.impact_breakdown.map(item => `
+            <div class="infra-card">
+              <div class="infra-head">
+                <div>
+                  <h3>${item.category}</h3>
+                  <p style="font-size:13px;color:var(--ink2);margin-top:6px">${item.claim}</p>
+                </div>
+              </div>
+              <ul class="consulting-list">
+                ${item.numbers.map(n => `<li><strong>${n.label}:</strong> ${n.value}</li>`).join('')}
+              </ul>
+              <p style="font-size:12px;color:var(--ink3);margin-top:8px">${item.note || ''}</p>
+            </div>
+          `).join('') : ''}
+        </div>
+      </div>
+
+      <div class="maturity-banner">
+        <div>
+          <div class="maturity-stage-label">Maturity stage</div>
+          <div class="maturity-stage-name">${mat.stage_name || ''}</div>
+          <div class="maturity-stage-num">Stage ${mat.stage_number || '–'} of 5</div>
+        </div>
+        <div class="maturity-desc">${mat.stage_description || ''}</div>
+      </div>
+
+      <div class="report-section">
+        <div class="rs-label">Infrastructure & TCO</div>
+        <div class="infra-card infra-reco">
+          <div class="infra-head">
+            <div>
+              <h3>Data-driven infrastructure recommendation</h3>
+              <p style="font-size:13px;color:var(--ink2);margin-top:6px">${infra.summary || 'Infrastructure and TCO analysis not available.'}</p>
+            </div>
+            <div class="infra-score">${infraRecommended.fit || 0}/10</div>
+          </div>
+          <div class="infra-metric-row">
+            <span class="consulting-pill good">${infraRecommended.name || 'Recommended approach'}</span>
+            <span class="consulting-pill">Runner-up: ${infraRunnerUp.name || 'n/a'}</span>
+            <span class="consulting-pill">Size band: ${infraAnalysis.size_class || ''}</span>
+          </div>
+          <div class="tco-summary">
+            <div class="tco-box">
+              <div class="tco-label">Recommended setup</div>
+              <div class="tco-value">${infraRecommended.setup_cost || ''}</div>
+              <div class="tco-detail">The initial investment needed to launch this approach.</div>
+            </div>
+            <div class="tco-box">
+              <div class="tco-label">Recommended annual run cost</div>
+              <div class="tco-value">${infraRecommended.annual_cost || ''}</div>
+              <div class="tco-detail">The steady-state operating cost once the stack is live.</div>
+            </div>
+            <div class="tco-box">
+              <div class="tco-label">Recommended 3-year TCO</div>
+              <div class="tco-value">${infraRecommended.tco_3yr || ''}</div>
+              <div class="tco-detail">Setup, run, and support over a three-year planning horizon.</div>
+            </div>
+          </div>
+          <ul class="infra-notes">
+            ${(infraAnalysis.recommendation_reason || []).map(rn => `<li>${rn}</li>`).join('')}
+            ${(infraAnalysis.tco_notes || []).map(nt => `<li>${nt}</li>`).join('')}
+          </ul>
+        </div>
+        <div class="infra-grid" style="margin-top:12px">${infraCardsHTML}</div>
+      </div>
+
+      <div class="report-section">
+        <div class="rs-label">Consulting lens</div>
+        <div class="consulting-grid">
+          <div class="consulting-card feature">
+            <h3>Adoption headline vs value reality</h3>
+            <p>${adoption.reality || adoption.headline || ''}</p>
+            <ul class="consulting-list">
+              <li>${adoption.headline || ''}</li>
+              <li>${adoption.value || ''}</li>
+              <li>${adoption.sceptical_note || ''}</li>
+            </ul>
+            <div class="consulting-pill-row">
+              <span class="consulting-pill">Primary-source stats</span>
+              <span class="consulting-pill">Usage is not maturity</span>
+              <span class="consulting-pill">Value still needs proof</span>
+            </div>
+            <div class="source-note">${adoption.source || ''}</div>
+          </div>
+
+          <div class="consulting-card">
+            <h3>What this engagement is for</h3>
+            <p><strong>${purpose.stage_name ? `Stage ${purpose.stage_number} · ${purpose.stage_name}` : 'Stage inference'}</strong></p>
+            <p style="margin-top:8px">${purpose.message || stagePurpose(mat.stage_number)}</p>
+            <div class="consulting-pill-row">
+              <span class="consulting-pill">Maturity stage</span>
+              <span class="consulting-pill">Scope before scale</span>
+            </div>
+          </div>
+
+          <div class="consulting-card">
+            <h3>Impact category</h3>
+            <p><strong>${impact.category || 'Growth'}</strong> · ${impact.metric || ''}</p>
+            <p style="margin-top:8px">${impact.proxy || ''}</p>
+            <ul class="consulting-list">
+              <li>${impact.formula || ''}</li>
+              <li>${impact.value || ''}</li>
+              <li>${impact.assumption || ''}</li>
+            </ul>
+            <div class="consulting-pill-row">
+              <span class="consulting-pill ${impactClass}">${impact.category || 'Growth'}</span>
+            </div>
+          </div>
+
+          <div class="consulting-card checkpoint-card">
+            <h3>Baseline and attribution checkpoint</h3>
+            <p><strong>${baseline.title || ''}</strong></p>
+            <p style="margin-top:8px">${baseline.summary || ''}</p>
+            <ul class="consulting-list">
+              ${(baseline.missing || []).map(m => `<li>${m}</li>`).join('')}
+            </ul>
+            <div class="checkpoint-flag ${baselineClass}">${baseline.ready ? 'Ready to scope' : 'Not ready to scope'}</div>
+          </div>
+
+          <div class="consulting-card">
+            <h3>Which layer sinks projects</h3>
+            <p><strong>${diagnosis.sink_layer || 'Data'}</strong> is the lowest-score layer and therefore the one most likely to sink this engagement.</p>
+            <p style="margin-top:8px">${diagnosis.why || ''}</p>
+            <div class="consulting-pill-row">
+              <span class="consulting-pill ${sinkClass}">${diagnosis.sink_layer || 'Data'}: ${diagnosis.sink_score ?? 0}/10</span>
+              <span class="consulting-pill">Runner-up: ${diagnosis.runner_up || ''} ${diagnosis.runner_up_score != null ? `(${diagnosis.runner_up_score}/10)` : ''}</span>
+            </div>
+            <div class="source-note">${diagnosis.source_note || ''}</div>
+          </div>
+
+          <div class="consulting-card">
+            <h3>CFO proxies</h3>
+            <p>Make the benefit measurable in the unit the finance team can challenge.</p>
+            <ul class="consulting-list">${proxyHTML}</ul>
+            <div class="consulting-pill-row">${diagnosisScores}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <div class="rs-label">Readiness profile</div>
+        <div class="readiness-grid">${readinessHTML}</div>
+      </div>
+
+      <div class="report-section">
+        <div class="rs-label">Top opportunities</div>
+        ${oppsHTML}
+      </div>
+
+      <div class="report-section">
+        <div class="rs-label">Value frame</div>
+        <div class="value-frame">
+          <div class="value-frame-title">💷 ${vf.headline || ''}</div>
+          <div class="value-frame-body">${vf.body || ''}</div>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <div class="rs-label">Risk flags</div>
+        ${risksHTML}
+      </div>
+
+      <div class="next-step-card">
+        <div>
+          <div class="next-step-label">Recommended next step</div>
+          <div class="next-step-title">${nxt.title || ''}</div>
+        </div>
+        <div class="next-step-body">${nxt.body || ''}</div>
+      </div>
+
+      <div style="margin-top:32px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+        <button class="btn btn-teal" onclick="exportPDF()">↓ Download PDF report</button>
+        <button class="btn btn-ghost" onclick="location.reload()">← Run another diagnostic</button>
+      </div>`;
+
+    const screen = document.getElementById('report-screen');
+    screen.innerHTML = html;
+    screen.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── PDF EXPORT ─────────────────────────────────────────────────────────────
+  function exportPDF() {
+    try {
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        throw new Error('PDF library did not load. Check your internet connection or CDN access.');
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+      const W = 210, margin = 18, contentW = W - margin * 2;
+      let y = 0;
+
+    // colours
+    const INK    = [15, 14, 12];
+    const INK2   = [58, 56, 48];
+    const INK3   = [122, 118, 104];
+    const TEAL   = [26, 107, 90];
+    const TEAL_L = [212, 237, 232];
+    const GOLD   = [184, 150, 12];
+    const GOLD_L = [240, 230, 176];
+    const SAND   = [245, 242, 235];
+    const SAND2  = [224, 219, 208];
+    const RED    = [192, 57, 43];
+    const RED_L  = [252, 232, 230];
+    const AMBER  = [196, 110, 16];
+    const AMBER_L= [253, 239, 216];
+    const WHITE  = [255, 255, 255];
+
+    function newPage() {
+      doc.addPage();
+      y = margin;
+    }
+
+    function checkY(needed) {
+      if (y + needed > 285) newPage();
+    }
+
+    function setFont(style, size, color) {
+      doc.setFont('helvetica', style);
+      doc.setFontSize(size);
+      doc.setTextColor(...(color || INK));
+    }
+
+    function rule(color, thickness) {
+      doc.setDrawColor(...(color || SAND2));
+      doc.setLineWidth(thickness || 0.3);
+      doc.line(margin, y, W - margin, y);
+      y += 4;
+    }
+
+    function sectionLabel(text) {
+      checkY(12);
+      setFont('bold', 8, TEAL);
+      doc.text(text.toUpperCase(), margin, y);
+      y += 2;
+      doc.setDrawColor(...TEAL_L);
+      doc.setLineWidth(0.3);
+      doc.line(margin, y, W - margin, y);
+      y += 6;
+    }
+
+    function wrappedText(text, x, maxW, lineH, style, size, color) {
+      setFont(style || 'normal', size || 10, color || INK2);
+      const lines = doc.splitTextToSize(String(text || ''), maxW);
+      lines.forEach(line => {
+        checkY(lineH || 5);
+        doc.text(line, x, y);
+        y += lineH || 5;
+      });
+      return lines.length;
+    }
+
+    // ── Cover band ──
+    doc.setFillColor(...INK);
+    doc.rect(0, 0, W, 52, 'F');
+
+    doc.setFillColor(...TEAL);
+    doc.rect(0, 0, 4, 52, 'F');
+
+    setFont('bold', 9, [180, 180, 160]);
+    doc.text('AI READINESS DIAGNOSTIC REPORT', margin, 16);
+
+    setFont('bold', 20, WHITE);
+    doc.text('AI Readiness Report', margin, 30);
+
+    if (currentReport) {
+      const co = currentReport.company_profile || {};
+      setFont('italic', 11, [100, 200, 180]);
+      doc.text(`${co.industry || ''} · ${co.size || ''}`, margin, 40);
+    }
+
+    setFont('normal', 8, [100, 100, 90]);
+    doc.text(new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}), margin, 49);
+
+    y = 62;
+
+    if (!currentReport) {
+      setFont('normal', 11, INK2);
+      doc.text('No report data available.', margin, y);
+      doc.save('ai-readiness-report.pdf');
+      return;
+    }
+
+      const r = currentReport;
+      const summary = r.summary_report || {};
+      const cl = r.consulting_lens || {};
+      const adoption = cl.adoption_gap || {};
+      const purpose = cl.engagement_purpose || {};
+      const impact = cl.impact_category || {};
+      const proxies = cl.cfo_proxies || [];
+      const baseline = cl.baseline_checkpoint || {};
+      const diagnosis = cl.readiness_diagnosis || {};
+      const infra = r.infrastructure_lens || {};
+      const infraAnalysis = infra.analysis || {};
+      const infraOptions = infraAnalysis.approaches || [];
+      const infraRecommended = infraAnalysis.recommended || {};
+      const infraRunnerUp = infraAnalysis.runner_up || {};
+
+    // ── Maturity stage ──
+    checkY(30);
+    doc.setFillColor(...INK);
+    doc.roundedRect(margin, y, contentW, 28, 2, 2, 'F');
+    setFont('normal', 7, [130, 130, 120]);
+    doc.text('MATURITY STAGE', margin + 6, y + 7);
+    setFont('bold', 16, WHITE);
+    doc.text(r.maturity?.stage_name || '', margin + 6, y + 16);
+    setFont('normal', 8, [160, 160, 150]);
+    doc.text(`Stage ${r.maturity?.stage_number || '–'} of 5`, margin + 6, y + 23);
+    const descLines = doc.splitTextToSize(r.maturity?.stage_description || '', contentW - 70);
+    setFont('normal', 8, [180, 180, 170]);
+    let dy = y + 9;
+    descLines.slice(0, 3).forEach(l => { doc.text(l, margin + 75, dy); dy += 5; });
+    y += 34;
+
+    // ── Summary & cost breakdown ──
+    if (summary.overview) {
+      newPage();
+      sectionLabel('Summary & cost breakdown');
+      const summaryText = summary.overview || '';
+      const summaryLines = doc.splitTextToSize(summaryText, contentW - 16);
+      const summaryH = 14 + summaryLines.length * 4.5;
+      checkY(summaryH);
+      doc.setFillColor(...WHITE);
+      doc.setDrawColor(...SAND2);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(margin, y, contentW, summaryH, 1.5, 1.5, 'FD');
+      setFont('normal', 8, INK2);
+      let sy = y + 10;
+      summaryLines.forEach(line => { doc.text(line, margin + 6, sy); sy += 4.5; });
+      y += summaryH + 8;
+
+      if (summary.personnel) {
+        const personnelLines = [
+          `Internal coordination: ${summary.personnel.staff_count || '–'} people × ${summary.personnel.hours_per_week || '–'} hrs/week × ${summary.personnel.weeks || '–'} weeks`,
+          `Rate assumption: ${summary.personnel.rate || '£75/hr'}`,
+          `Estimated internal cost: ${summary.personnel.total_cost || '–'}`
+        ];
+        const personnelH = 14 + personnelLines.length * 4.5;
+        checkY(personnelH);
+        doc.setFillColor(...TEAL_L);
+        doc.setDrawColor(...TEAL);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(margin, y, contentW, personnelH, 1.5, 1.5, 'FD');
+        setFont('bold', 9, INK);
+        doc.text('Cost of hiring personnel to work with the consultant', margin + 6, y + 8);
+        setFont('normal', 8, INK2);
+        let py = y + 14;
+        personnelLines.forEach(line => { doc.text(line, margin + 6, py); py += 4.5; });
+        y += personnelH + 8;
+      }
+
+      if (summary.impact_breakdown) {
+        summary.impact_breakdown.forEach(item => {
+          const itemLines = [item.claim, ...(item.numbers || []).map(n => `${n.label}: ${n.value}`), item.note || ''].filter(Boolean);
+          const itemH = 16 + itemLines.length * 4.5;
+          checkY(itemH);
+          doc.setFillColor(...WHITE);
+          doc.setDrawColor(...SAND2);
+          doc.setLineWidth(0.3);
+          doc.roundedRect(margin, y, contentW, itemH, 1.5, 1.5, 'FD');
+          setFont('bold', 9, INK);
+          doc.text(item.category, margin + 6, y + 8);
+          setFont('normal', 8, INK2);
+          let by = y + 14;
+          itemLines.forEach(line => { doc.text(line, margin + 6, by); by += 4.5; });
+          y += itemH + 6;
+        });
+      }
+    }
+
+    // ── Infrastructure & TCO ──
+    sectionLabel('Infrastructure & TCO');
+    const infraSummary = [infra.summary, `Recommended: ${infraRecommended.name || ''}`, `Runner-up: ${infraRunnerUp.name || ''}`, ...(infraAnalysis.recommendation_reason || []), ...(infraAnalysis.tco_notes || [])].filter(Boolean).join(' ');
+    const infraSummaryLines = doc.splitTextToSize(infraSummary || '', contentW - 16);
+    const infraH = 18 + infraSummaryLines.length * 4.5;
+    checkY(infraH);
+    doc.setFillColor(...TEAL_L);
+    doc.setDrawColor(...TEAL);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(margin, y, contentW, infraH, 1.5, 1.5, 'FD');
+    setFont('bold', 9, INK);
+    doc.text('Data-driven infrastructure recommendation', margin + 6, y + 8);
+    setFont('normal', 8, INK2);
+    let infraY = y + 14;
+    infraSummaryLines.slice(0, 8).forEach(l => { doc.text(l, margin + 6, infraY); infraY += 4.5; });
+    y += infraH + 5;
+
+    const infraCards = infraOptions.slice(0, 4);
+    infraCards.forEach((o, i) => {
+      const cardH = 34;
+      checkY(cardH + 2);
+      const isBest = o.key === infraRecommended.key;
+      doc.setFillColor(...WHITE);
+      doc.setDrawColor(...(isBest ? TEAL : SAND2));
+      doc.setLineWidth(0.3);
+      doc.roundedRect(margin, y, contentW, cardH, 1.5, 1.5, 'FD');
+      setFont('bold', 8.5, INK);
+      doc.text(`${i + 1}. ${o.name || ''}`, margin + 5, y + 8);
+      setFont('normal', 7.5, INK2);
+      const line = `${o.setup_cost || ''} setup  ·  ${o.annual_cost || ''} annual  ·  ${o.tco_3yr || ''} 3yr TCO`;
+      const lines = doc.splitTextToSize(line, contentW - 24);
+      let cy = y + 14;
+      lines.slice(0, 2).forEach(l => { doc.text(l, margin + 5, cy); cy += 4.5; });
+      setFont('normal', 7, isBest ? TEAL : INK3);
+      doc.text(`${isBest ? 'Recommended' : 'Fit score'} ${isBest ? '' : `: ${o.fit || 0}/10`}`, margin + 5, y + 29);
+      y += cardH + 4;
+    });
+
+
+    // ── Consulting lens ──
+    sectionLabel('Consulting Lens');
+
+    const adoptionText = [adoption.reality, adoption.headline, adoption.value, adoption.sceptical_note].filter(Boolean).join(' ');
+    const adoptionLines = doc.splitTextToSize(adoptionText || '', contentW - 16);
+    const adoptionH = 18 + adoptionLines.length * 4.5;
+    checkY(adoptionH);
+    doc.setFillColor(...WHITE);
+    doc.setDrawColor(...SAND2);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(margin, y, contentW, adoptionH, 1.5, 1.5, 'FD');
+    setFont('bold', 9, INK);
+    doc.text('Adoption headline vs value reality', margin + 6, y + 8);
+    setFont('normal', 8, INK2);
+    let ay = y + 14;
+    adoptionLines.slice(0, 6).forEach(l => { doc.text(l, margin + 6, ay); ay += 4.5; });
+    setFont('normal', 7, INK3);
+    doc.text(adoption.source || '', margin + 6, y + adoptionH - 4);
+    y += adoptionH + 5;
+
+    const purposeText = `${purpose.stage_name ? `Stage ${purpose.stage_number} · ${purpose.stage_name}` : 'Stage inference'} ${purpose.message || ''}`;
+    const impactText = [impact.category, impact.metric, impact.proxy, impact.value].filter(Boolean).join(' · ');
+    const purposeLines = doc.splitTextToSize(purposeText || '', (contentW - 10) / 2 - 6);
+    const impactLines = doc.splitTextToSize(impactText || '', (contentW - 10) / 2 - 6);
+    const leftH = 18 + purposeLines.length * 4.5;
+    const rightH = 18 + impactLines.length * 4.5;
+    const halfW = (contentW - 4) / 2;
+    const rowH = Math.max(leftH, rightH);
+    checkY(rowH);
+
+    doc.setFillColor(...WHITE);
+    doc.setDrawColor(...SAND2);
+    doc.roundedRect(margin, y, halfW, rowH, 1.5, 1.5, 'FD');
+    doc.roundedRect(margin + halfW + 4, y, halfW, rowH, 1.5, 1.5, 'FD');
+    setFont('bold', 9, INK);
+    doc.text('Engagement purpose', margin + 6, y + 8);
+    setFont('normal', 8, INK2);
+    let py = y + 14;
+    purposeLines.slice(0, 5).forEach(l => { doc.text(l, margin + 6, py); py += 4.5; });
+
+    setFont('bold', 9, INK);
+    doc.text('Impact category', margin + halfW + 10, y + 8);
+    setFont('normal', 8, INK2);
+    let iy = y + 14;
+    impactLines.slice(0, 5).forEach(l => { doc.text(l, margin + halfW + 10, iy); iy += 4.5; });
+    y += rowH + 5;
+
+    const baselineText = [baseline.summary, ...(baseline.missing || []), baseline.ready ? 'Ready to scope' : 'Not ready to scope'].filter(Boolean).join(' · ');
+    const diagText = [diagnosis.sink_layer, diagnosis.why, diagnosis.fix].filter(Boolean).join(' ');
+    const baselineLines = doc.splitTextToSize(baselineText || '', (contentW - 10) / 2 - 6);
+    const diagLines = doc.splitTextToSize(diagText || '', (contentW - 10) / 2 - 6);
+    const leftH2 = 22 + baselineLines.length * 4.5;
+    const rightH2 = 22 + diagLines.length * 4.5;
+    const rowH2 = Math.max(leftH2, rightH2);
+    checkY(rowH2);
+
+    doc.setFillColor(...WHITE);
+    doc.setDrawColor(...SAND2);
+    doc.roundedRect(margin, y, halfW, rowH2, 1.5, 1.5, 'FD');
+    doc.roundedRect(margin + halfW + 4, y, halfW, rowH2, 1.5, 1.5, 'FD');
+    setFont('bold', 9, INK);
+    doc.text('Baseline checkpoint', margin + 6, y + 8);
+    setFont('normal', 8, INK2);
+    let by = y + 14;
+    baselineLines.slice(0, 5).forEach(l => { doc.text(l, margin + 6, by); by += 4.5; });
+    setFont('normal', 7, INK3);
+    doc.text(baseline.source || '', margin + 6, y + rowH2 - 4);
+
+    setFont('bold', 9, INK);
+    doc.text('Readiness sink', margin + halfW + 10, y + 8);
+    setFont('normal', 8, INK2);
+    let dy2 = y + 14;
+    diagLines.slice(0, 5).forEach(l => { doc.text(l, margin + halfW + 10, dy2); dy2 += 4.5; });
+    y += rowH2 + 8;
+
+    const proxyText = proxies.map(p => `${p.title}: ${p.value}${p.note ? ` (${p.note})` : ''}`).join(' · ');
+    const proxyLines = doc.splitTextToSize(proxyText || '', contentW - 16);
+    const proxyH = 18 + proxyLines.length * 4.5;
+    checkY(proxyH);
+    doc.setFillColor(...GOLD_L);
+    doc.setDrawColor(...GOLD);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(margin, y, contentW, proxyH, 1.5, 1.5, 'FD');
+    setFont('bold', 9, INK);
+    doc.text('CFO proxies', margin + 6, y + 8);
+    setFont('normal', 8, INK2);
+    let px = y + 14;
+    proxyLines.slice(0, 8).forEach(l => { doc.text(l, margin + 6, px); px += 4.5; });
+    y += proxyH + 8;
+
+    // ── Readiness scores ──
+    sectionLabel('Readiness Profile');
+    const dims2 = [
+      { key: 'data',      label: 'Data Readiness' },
+      { key: 'workforce', label: 'Workforce Readiness' },
+      { key: 'leadership',label: 'Leadership Commitment' }
+    ];
+    const cardW = (contentW - 8) / 3;
+    dims2.forEach((d, i) => {
+      const item = r.readiness?.[d.key] || {};
+      const sc = item.score || 0;
+      const cx = margin + i * (cardW + 4);
+      const cardH = 28;
+      checkY(cardH + 2);
+      doc.setFillColor(...WHITE);
+      doc.setDrawColor(...SAND2);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(cx, y, cardW, cardH, 1.5, 1.5, 'FD');
+      setFont('bold', 7, INK3);
+      doc.text(d.label.toUpperCase(), cx + 4, y + 7);
+      const scoreColor = sc >= 7 ? TEAL : sc >= 4 ? AMBER : RED;
+      setFont('bold', 18, scoreColor);
+      doc.text(String(sc), cx + 4, y + 19);
+      setFont('normal', 7, INK3);
+      doc.text('/ 10', cx + 14, y + 19);
+      // bar
+      const barY = y + 22;
+      const barW = cardW - 8;
+      doc.setFillColor(...SAND2);
+      doc.roundedRect(cx + 4, barY, barW, 2, 0.5, 0.5, 'F');
+      doc.setFillColor(...scoreColor);
+      doc.roundedRect(cx + 4, barY, barW * (sc / 10), 2, 0.5, 0.5, 'F');
+    });
+    y += 32;
+
+    // verdict text under each card
+    dims2.forEach((d, i) => {
+      const item = r.readiness?.[d.key] || {};
+      const cx = margin + i * (cardW + 4);
+      const lines = doc.splitTextToSize(item.verdict || '', cardW - 4);
+      setFont('normal', 7.5, INK2);
+      lines.slice(0, 3).forEach(l => { doc.text(l, cx + 4, y); y += 4; });
+    });
+    y += 6;
+
+    // ── Opportunities ──
+    sectionLabel('Top Opportunities');
+    (r.opportunities || []).forEach((o, i) => {
+      const estH = 42;
+      checkY(estH);
+      doc.setFillColor(...WHITE);
+      doc.setDrawColor(...SAND2);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(margin, y, contentW, estH, 1.5, 1.5, 'FD');
+
+      // rank watermark
+      setFont('bold', 28, [230, 225, 215]);
+      doc.text(String(i + 1), W - margin - 12, y + 20);
+
+      setFont('bold', 10, INK);
+      doc.text(o.title || '', margin + 5, y + 8);
+
+      const descLines = doc.splitTextToSize(o.description || '', contentW - 24);
+      setFont('normal', 8, INK2);
+      let ty = y + 14;
+      descLines.slice(0, 2).forEach(l => { doc.text(l, margin + 5, ty); ty += 4.5; });
+
+      // badges
+      const effortColor = (o.effort || '').toLowerCase() === 'low' ? TEAL : (o.effort || '').toLowerCase() === 'medium' ? AMBER : RED;
+      setFont('bold', 7, effortColor);
+      doc.text(`Effort: ${o.effort || ''}`, margin + 5, ty + 1);
+      setFont('normal', 7, INK3);
+      doc.text(`  ·  ${o.pillar || ''}`, margin + 28, ty + 1);
+      ty += 5;
+
+      // value estimate
+      doc.setFillColor(...GOLD_L);
+      doc.setDrawColor(...GOLD);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(margin + 4, ty, contentW - 8, 9, 1, 1, 'FD');
+      doc.setFillColor(...GOLD);
+      doc.rect(margin + 4, ty, 1.5, 9, 'F');
+      const valLines = doc.splitTextToSize('Value: ' + (o.value_estimate || ''), contentW - 14);
+      setFont('normal', 7.5, INK2);
+      doc.text(valLines[0] || '', margin + 8, ty + 5.5);
+
+      y += estH + 5;
+    });
+
+    // ── Value Frame ──
+    checkY(30);
+    sectionLabel('Value Frame');
+    doc.setFillColor(...GOLD_L);
+    doc.setDrawColor(212, 184, 64);
+    doc.setLineWidth(0.3);
+    const vfLines = doc.splitTextToSize((r.value_frame?.body || ''), contentW - 16);
+    const vfH = 14 + vfLines.length * 4.5;
+    checkY(vfH);
+    doc.roundedRect(margin, y, contentW, vfH, 1.5, 1.5, 'FD');
+    setFont('bold', 9, INK);
+    doc.text(r.value_frame?.headline || '', margin + 6, y + 8);
+    setFont('normal', 8, INK2);
+    let vy = y + 14;
+    vfLines.forEach(l => { doc.text(l, margin + 6, vy); vy += 4.5; });
+    y += vfH + 8;
+
+    // ── Risk Flags ──
+    sectionLabel('Risk Flags');
+    (r.risk_flags || []).forEach(f => {
+      const sev = f.severity || 'low';
+      const bgCol = sev === 'high' ? RED_L : sev === 'medium' ? AMBER_L : TEAL_L;
+      const brdCol = sev === 'high' ? RED : sev === 'medium' ? AMBER : TEAL;
+      const flagLines = doc.splitTextToSize(f.description || '', contentW - 14);
+      const fH = 14 + flagLines.length * 4.5;
+      checkY(fH + 3);
+      doc.setFillColor(...bgCol);
+      doc.setDrawColor(...brdCol);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(margin, y, contentW, fH, 1.5, 1.5, 'FD');
+      setFont('bold', 8.5, INK);
+      doc.text(f.title || '', margin + 6, y + 8);
+      setFont('normal', 7.5, INK2);
+      let fy = y + 14;
+      flagLines.forEach(l => { doc.text(l, margin + 6, fy); fy += 4.5; });
+      y += fH + 5;
+    });
+
+    // ── Next Step ──
+    checkY(36);
+    sectionLabel('Recommended Next Step');
+    const nsLines = doc.splitTextToSize(r.next_step?.body || '', contentW - 16);
+    const nsH = 16 + nsLines.length * 4.5;
+    doc.setFillColor(...INK);
+    doc.roundedRect(margin, y, contentW, nsH, 1.5, 1.5, 'F');
+    setFont('bold', 10, WHITE);
+    doc.text(r.next_step?.title || '', margin + 6, y + 10);
+    setFont('normal', 8, [180, 180, 170]);
+    let ny = y + 17;
+    nsLines.forEach(l => { doc.text(l, margin + 6, ny); ny += 4.5; });
+    y += nsH + 8;
+
+    // ── Footer on each page ──
+    const pageCount = doc.getNumberOfPages();
+    for (let p = 1; p <= pageCount; p++) {
+      doc.setPage(p);
+      doc.setDrawColor(...SAND2);
+      doc.setLineWidth(0.3);
+      doc.line(margin, 289, W - margin, 289);
+      setFont('normal', 7, INK3);
+      doc.text('AI Readiness Diagnostic · Confidential', margin, 294);
+      doc.text(`Page ${p} of ${pageCount}`, W - margin, 294, { align: 'right' });
+    }
+
+      const co2 = r.company_profile || {};
+      const slug = ((co2.name || co2.industry || 'report') + '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      doc.save(`ai-readiness-${slug}.pdf`);
+    } catch (err) {
+      console.error('PDF export failed:', err);
+      alert(`Could not download the PDF: ${err.message}`);
+    }
+  }
+
+  // ── INIT ───────────────────────────────────────────────────────────────────
+  buildDots();
+  updateProgress();
+  document.querySelectorAll('input[type="radio"], textarea').forEach(el => {
+    el.addEventListener('change', updateProgress);
+    el.addEventListener('input', updateProgress);
+  });
+</script>
+</body>
+</html>
