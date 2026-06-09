@@ -14,5 +14,5 @@ build/
 *.sw?
 _pycache__/
 {data
-
+__pycache__
 

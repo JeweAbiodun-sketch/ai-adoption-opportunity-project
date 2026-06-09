@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Adoption Strategy · Cleo Company</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink:      #0f0e0c;
+  --ink2:     #3a3830;
+  --ink3:     #7a7668;
+  --sand:     #f5f2eb;
+  --sand2:    #ede9df;
+  --sand3:    #e0dbd0;
+  --gold:     #b8960c;
+  --gold-lt:  #f0e6b0;
+  --teal:     #1a6b5a;
+  --teal-lt:  #d4ede8;
+  --teal-dk:  #0f4035;
+  --red:      #c0392b;
+  --red-lt:   #fce8e6;
+  --amber:    #c46e10;
+  --amber-lt: #fdefd8;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'DM Sans', sans-serif;
+  background: #1a1a18;
+  color: var(--ink);
+  overflow: hidden;
+}
+
+/* ── DECK SHELL ── */
+.deck {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+/* ── SLIDES ── */
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 72px 88px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .35s ease;
+}
+
+.slide.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── SLIDE THEMES ── */
+.slide-dark {
+  background: var(--teal-dk);
+  color: #fff;
+}
+.slide-sand {
+  background: var(--sand);
+  color: var(--ink);
+}
+.slide-ink {
+  background: var(--ink);
+  color: #fff;
+}
+.slide-teal {
+  background: var(--teal);
+  color: #fff;
+}
+
+/* ── TYPOGRAPHY ── */
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  opacity: .55;
+  margin-bottom: 14px;
+}
+.slide-dark .eyebrow,
+.slide-ink .eyebrow,
+.slide-teal .eyebrow { color: #fff; }
+.slide-sand .eyebrow { color: var(--ink3); }
+
+h1.display {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(40px, 5.5vw, 72px);
+  line-height: 1.05;
+  margin-bottom: 24px;
+}
+h2.display {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(30px, 4vw, 54px);
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+h3.display {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(22px, 2.8vw, 38px);
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+
+em.teal { color: var(--teal); font-style: italic; }
+em.gold { color: var(--gold); font-style: italic; }
+em.sand { color: var(--sand); font-style: italic; }
+
+.body-text {
+  font-size: clamp(14px, 1.4vw, 18px);
+  line-height: 1.65;
+  opacity: .85;
+  max-width: 640px;
+}
+
+/* ── NAV ── */
+.nav {
+  position: fixed;
+  bottom: 32px;
+  right: 40px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 100;
+}
+.nav-counter {
+  font-size: 12px;
+  letter-spacing: .08em;
+  color: rgba(255,255,255,.4);
+}
+.nav-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.2);
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.7);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, border-color .2s;
+  backdrop-filter: blur(4px);
+}
+.nav-btn:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.4); }
+.nav-btn:disabled { opacity: .25; cursor: default; }
+
+/* ── PROGRESS BAR ── */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  background: var(--teal);
+  transition: width .35s ease;
+  z-index: 100;
+}
+
+/* ── SLIDE LABEL ── */
+.slide-label {
+  position: fixed;
+  top: 28px;
+  left: 40px;
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.3);
+  z-index: 100;
+}
+
+/* ── CARDS / GRIDS ── */
+.card-grid {
+  display: grid;
+  gap: 16px;
+}
+.col-2 { grid-template-columns: 1fr 1fr; }
+.col-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+.card {
+  border-radius: 8px;
+  padding: 24px 28px;
+}
+.card-sand { background: var(--sand2); }
+.card-teal { background: rgba(26,107,90,.15); border: 1px solid rgba(26,107,90,.3); }
+.card-red  { background: var(--red-lt); border: 1px solid rgba(192,57,43,.2); }
+.card-amber{ background: var(--amber-lt); border: 1px solid rgba(196,110,16,.25); }
+.card-gold { background: var(--gold-lt); border: 1px solid rgba(184,150,12,.3); }
+.card-dark { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); }
+.card-white { background: #fff; }
+
+.card-label {
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.card-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(28px, 3vw, 44px);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.card-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: .7;
+}
+
+/* ── SCORE BAR ── */
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.score-label { font-size: 13px; width: 160px; flex-shrink: 0; }
+.score-track {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(0,0,0,.1);
+  overflow: hidden;
+}
+.slide-dark .score-track,
+.slide-ink .score-track,
+.slide-teal .score-track { background: rgba(255,255,255,.15); }
+.score-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+.score-val { font-size: 13px; font-weight: 600; width: 32px; text-align: right; flex-shrink: 0; }
+
+/* ── PHASE STEPS ── */
+.phase-list { display: flex; flex-direction: column; gap: 12px; }
+.phase-item {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.phase-dot {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--teal);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.phase-body { flex: 1; }
+.phase-title { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+.phase-meta { font-size: 12px; opacity: .6; }
+
+/* ── RISK FLAGS ── */
+.risk-flag {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px 20px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+.risk-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+.risk-high .risk-dot { background: var(--red); }
+.risk-med  .risk-dot { background: var(--amber); }
+.risk-flag-body .risk-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+.risk-flag-body .risk-desc  { font-size: 13px; opacity: .7; line-height: 1.5; }
+
+/* ── DIVIDER ── */
+.rule {
+  height: 1px;
+  background: currentColor;
+  opacity: .12;
+  margin: 28px 0;
+}
+
+/* ── BIG STAT ── */
+.stat-cluster {
+  display: flex;
+  gap: 48px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.stat-item {}
+.stat-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(36px, 4.5vw, 64px);
+  line-height: 1;
+}
+.stat-unit { font-size: 14px; opacity: .6; margin-top: 4px; }
+
+/* ── SPLIT LAYOUT ── */
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: start;
+}
+.split-narrow { grid-template-columns: 5fr 4fr; }
+
+/* ── BADGE ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 11px;
+  letter-spacing: .06em;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.badge-teal { background: var(--teal-lt); color: var(--teal); }
+.badge-gold { background: var(--gold-lt); color: var(--gold); }
+.badge-red  { background: var(--red-lt);  color: var(--red); }
+.badge-amber{ background: var(--amber-lt);color: var(--amber); }
+
+/* ── QUOTE ── */
+.pullquote {
+  border-left: 3px solid var(--teal);
+  padding: 12px 0 12px 24px;
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(18px, 2vw, 26px);
+  font-style: italic;
+  line-height: 1.45;
+  opacity: .9;
+}
+
+/* ── TABLE ── */
+.compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.compare-table th {
+  text-align: left;
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  opacity: .5;
+  padding: 0 12px 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.compare-table td {
+  padding: 10px 12px 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  vertical-align: top;
+  line-height: 1.45;
+}
+.compare-table td:last-child { opacity: .65; }
+.tag-invest { color: #4ade80; font-weight: 600; font-size: 11px; }
+.tag-pilot  { color: var(--gold); font-weight: 600; font-size: 11px; }
+.tag-watch  { color: rgba(255,255,255,.45); font-weight: 600; font-size: 11px; }
+
+/* ── KEYBOARD HINT ── */
+.kbd-hint {
+  position: fixed;
+  bottom: 32px;
+  left: 40px;
+  font-size: 11px;
+  color: rgba(255,255,255,.25);
+  letter-spacing: .06em;
+}
+
+/* ── COST ROW ── */
+.cost-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0,0,0,.08);
+  font-size: 14px;
+}
+.cost-row:last-child { border-bottom: none; }
+.cost-label { opacity: .75; }
+.cost-val { font-weight: 600; font-size: 16px; }
+.cost-note { font-size: 11px; opacity: .5; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="slide-label" id="slideLabel"></div>
+
+<div class="deck" id="deck">
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 1 · TITLE
+  ══════════════════════════════════════════════ -->
+  <div class="slide slide-dark active" data-label="Introduction">
+    <div class="eyebrow">AI Adoption Strategy · Confidential · 8 June 2026</div>
+    <h1 class="display" style="color:#fff; max-width:780px;">
+      Turning AI experiments<br>into <em class="sand" style="color:#c9e8e1;">measurable results</em>
+    </h1>
+    <div class="rule" style="max-width:480px;"></div>
+    <p class="body-text" style="color:rgba(255,255,255,.7); max-width:560px;">
+      A data-backed recommendation for Cleo Company — Electronics &amp; Technology retail, 10+ stores, omnichannel. What to do first, why it works, and what it will cost.
+    </p>
+    <div style="margin-top:48px; display:flex; gap:32px;">
+      <div>
+        <div style="font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:6px;">Prepared by</div>
+        <div style="font-size:15px; color:#fff;">AI Adoption Consulting</div>
+      </div>
+      <div>
+        <div style="font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:6px;">For</div>
+        <div style="font-size:15px; color:#fff;">Cleo, CEO · Cleo Company</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 2 · WHERE YOU STAND TODAY
+  ══════════════════════════════════════════════ -->
+  <div class="slide slide-sand" data-label="Diagnostic Results">
+    <div class="eyebrow">Where Cleo Company stands today</div>
+    <h2 class="display">Stage 2 of 5 — <em class="teal">Experimenting</em></h2>
+    <p class="body-text" style="margin-bottom:36px;">
+      You have email automation and basic product recommendations in place — but they are isolated, vendor-provided tools with no business-side ownership. AI exists. It is not yet working <em>for</em> you.
+    </p>
+
+    <div class="card-grid col-3" style="max-width:760px; margin-bottom:28px;">
+      <div class="card card-sand" style="text-align:center;">
+        <div class="card-label" style="color:var(--amber);">Data Readiness</div>
+        <div class="card-num" style="color:var(--amber);">4/10</div>
+        <div class="card-desc">No unified customer view across channels. Gaps in POS history.</div>
+      </div>
+      <div class="card card-sand" style="text-align:center;">
+        <div class="card-label" style="color:var(--red);">Workforce Readiness</div>
+        <div class="card-num" style="color:var(--red);">3/10</div>
+        <div class="card-desc">Most staff rely on manual processes. No structured AI training.</div>
+      </div>
+      <div class="card card-sand" style="text-align:center;">
+        <div class="card-label" style="color:var(--teal);">Leadership Commitment</div>
+        <div class="card-num" style="color:var(--teal);">5/10</div>
+        <div class="card-desc">Appropriately cautious. Demanding clearer ROI — a healthy sign.</div>
+      </div>
+    </div>
+
+    <div class="pullquote" style="max-width:620px;">
+      "78% of organisations use AI in at least one function. Only 1% describe their rollout as mature."
+      <div style="font-family:'DM Sans',sans-serif; font-size:12px; font-style:normal; margin-top:8px; opacity:.5;">McKinsey Global Survey on AI, 2025</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 3 · THE REAL PROBLEM
+  ══════════════════════════════════════════════ -->
+  <div class="slide slide-ink" data-label="The Problem">
+    <div class="eyebrow" style="color:rgba(255,255,255,.45);">The honest diagnosis</div>
+    <h2 class="display" style="color:#fff; max-width:680px;">
+      You are not failing because<br>AI is absent. You are failing<br>because <em class="sand" style="color:var(--teal-lt);">adoption has stalled.</em>
+    </h2>
+    <div class="rule"></div>
+    <div class="card-grid col-3" style="max-width:800px;">
+      <div class="card card-dark">
+        <div class="card-label" style="color:var(--red); margin-bottom:10px;">Data gap</div>
+        <div style="font-size:14px; color:rgba(255,255,255,.8); line-height:1.55;">Missing historical inventory, incomplete POS records, no unified customer view. You cannot train demand forecasting on poor data.</div>
+      </div>
+      <div class="card card-dark">
+        <div class="card-label" style="color:var(--amber); margin-bottom:10px;">People gap</div>
+        <div style="font-size:14px; color:rgba(255,255,255,.8); line-height:1.55;">Buyers and merchandisers don't trust tools they didn't help design. IT owns AI. The business doesn't.</div>
+      </div>
+      <div class="card card-dark">
+        <div class="card-label" style="color:var(--gold); margin-bottom:10px;">Expectation gap</div>
+        <div style="font-size:14px; color:rgba(255,255,255,.8); line-height:1.55;">Leadership expects 3–6 month payback. Operational retail AI needs 12–18 months to show ROI. Partial implementations fail.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 4 · THE OPPORTUNITY
+  ══════════════════════════════════════════════ -->
+  <div class="slide slide-sand" data-label="Top Opportunity">
+    <div class="split split-narrow">
+      <div>
+        <div class="eyebrow">#1 Recommended opportunity</div>
+        <h2 class="display">AI Demand Forecasting &amp; <em class="teal">Inventory Optimisation</em></h2>
+        <p class="body-text" style="margin-bottom:28px;">
+          Predict SKU-level demand across all 10+ stores. Reduce overstock and stockouts. Generate purchase order drafts automatically. This is the highest-evidence, most immediately measurable AI investment available to a mid-market electronics retailer.
+        </p>
+        <div style="display:flex; flex-direction:column; gap:8px; font-size:13px; max-width:400px;">
+          <div style="display:flex; align-items:center; gap:10px;"><span style="color:var(--teal); font-size:16px;">✓</span> Works on existing POS &amp; ERP data</div>
+          <div style="display:flex; align-items:center; gap:10px;"><span style="color:var(--teal); font-size:16px;">✓</span> Measurable KPIs within 6 months</div>
+          <div style="display:flex; align-items:center; gap:10px;"><span style="color:var(--teal); font-size:16px;">✓</span> SaaS entry point at £500–£5k/month</div>
+          <div style="display:flex; align-items:center; gap:10px;"><span style="color:var(--teal); font-size:16px;">✓</span> Electronics obsolescence cycles make this 25–40% higher ROI than general retail</div>
+        </div>
+      </div>
+      <div>
+        <div class="card card-teal" style="margin-bottom:16px; padding:28px;">
+          <div class="card-label" style="color:var(--teal);">Annual benefit range</div>
+          <div class="card-num" style="color:var(--ink);">£300k–£750k</div>
+          <div class="card-desc" style="margin-top:8px;">For a £2M–£10M revenue business. Assumes 15% inventory cost reduction on a 30–40% inventory ratio.</div>
+        </div>
+        <div class="card card-gold" style="padding:28px;">
+          <div class="card-label" style="color:var(--gold);">Also worth piloting</div>
+          <div style="font-size:14px; line-height:1.6; margin-top:4px;">
+            <strong>#2 Customer Personalisation</strong><br>
+            <span style="opacity:.7; font-size:13px;">£100k–£500k · Requires unified customer view first</span>
+          </div>
+          <div style="font-size:14px; line-height:1.6; margin-top:12px;">
+            <strong>#3 Dynamic Pricing</strong><br>
+            <span style="opacity:.7; font-size:13px;">£60k–£300k margin improvement · Phase 2</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 5 · RISK FLAGS
+  ══════════════════════════════════════════════ -->
+  <div class="slide slide-sand" data-label="Risk Flags">
+    <div class="eyebrow">What can still derail this</div>
+    <h2 class="display" style="max-width:560px;">Three risks that <em class="teal">kill AI projects</em> at your stage</h2>
+
+    <div style="max-width:760px; margin-top:8px;">
+      <div class="risk-flag risk-high" style="background:var(--red-lt); border-radius:6px;">
+        <div class="risk-dot"></div>
+        <div class="risk-flag-body">
+          <div class="risk-title" style="color:var(--red);">Data quality will block deployment</div>
+          <div class="risk-desc">Missing historical inventory, incomplete POS records, no unified customer view. 3–6 months of data remediation needed before training can begin. Deploying on bad data produces unreliable forecasts that destroy trust.</div>
+        </div>
+      </div>
+
+      <div class="risk-flag risk-high" style="background:var(--red-lt); border-radius:6px;">
+        <div class="risk-dot"></div>
+        <div class="risk-flag-body">
+          <div class="risk-title" style="color:var(--red);">IT-led AI with no business ownership</div>
+          <div class="risk-desc">Buyers and merchandisers won't adopt tools they didn't help design. Without a named business champion and cross-functional governance, tools will be built and ignored.</div>
+        </div>
+      </div>
+
+      <div class="risk-flag risk-med" style="background:var(--amber-lt); border-radius:6px;">
+        <div class="risk-dot"></div>
+        <div class="risk-flag-body">
+          <div class="risk-title" style="color:var(--amber);">Workforce skills gap — 30–50% underutilisation risk</div>
+          <div class="risk-desc">Most staff rely on manual processes. Without role-based training and 20–30 hours of protected learning time per person, even well-designed tools will underperform in the first 6 months.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 6 · THE ROADMAP
+  ══════════════════════════════════════════════ -->
+  <div class="slide slide-teal" data-label="Implementation Roadmap">
+    <div class="eyebrow" style="color:rgba(255,255,255,.5);">The recommended path</div>
+    <h2 class="display" style="color:#fff; margin-bottom:32px;">A four-phase rollout</h2>
+
+    <div class="phase-list" style="max-width:720px;">
+      <div class="phase-item">
+        <div class="phase-dot" style="background:rgba(255,255,255,.2); color:#fff;">0</div>
+        <div class="phase-body">
+          <div class="phase-title" style="color:#fff;">Data &amp; Process Audit <span style="color:rgba(255,255,255,.45); font-weight:400;">· Weeks 1–4 · £5k–£8k</span></div>
+          <div class="phase-meta" style="color:rgba(255,255,255,.6);">Audit sales, inventory, and customer data quality. Map buying/merchandising processes. Interview 8–10 staff. <strong style="color:#fff;">If data gaps need 9+ months to fix — pause and fix foundations first.</strong></div>
+        </div>
+      </div>
+
+      <div class="phase-item">
+        <div class="phase-dot">1</div>
+        <div class="phase-body">
+          <div class="phase-title" style="color:#fff;">Vendor Evaluation <span style="color:rgba(255,255,255,.45); font-weight:400;">· Weeks 5–8</span></div>
+          <div class="phase-meta" style="color:rgba(255,255,255,.6);">Free trials of 2–3 SaaS forecasting tools on one category, one store. Buyers involved from day one.</div>
+        </div>
+      </div>
+
+      <div class="phase-item">
+        <div class="phase-dot">2</div>
+        <div class="phase-body">
+          <div class="phase-title" style="color:#fff;">Pilot Deployment <span style="color:rgba(255,255,255,.45); font-weight:400;">· Weeks 9–24</span></div>
+          <div class="phase-meta" style="color:rgba(255,255,255,.6);">Shadow mode testing alongside current process. Role-based training, visible champions, daily tool integration. Target: &gt;70% active usage by week 24.</div>
+        </div>
+      </div>
+
+      <div class="phase-item">
+        <div class="phase-dot">3</div>
+        <div class="phase-body">
+          <div class="phase-title" style="color:#fff;">ROI Review &amp; Scale Decision <span style="color:rgba(255,255,255,.45); font-weight:400;">· Month 12–18</span></div>
+          <div class="phase-meta" style="color:rgba(255,255,255,.6);">Compare actual inventory cost, stockout rate, and markdown rate against baseline. Scale to all stores or stop. Do not evaluate earlier — one season is not enough data.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 7 · COST & TCO
+  ══════════════════════════════════════════════ -->
+  <div class="slide slide-sand" data-label="Cost & TCO">
+    <div class="eyebrow">What it actually costs — honest numbers</div>
+    <h2 class="display" style="margin-bottom:8px;">Two scenarios. <em class="teal">Pick the right one.</em></h2>
+    <p class="body-text" style="margin-bottom:32px;">SaaS is the right entry point for the pilot. Plan for hybrid infrastructure when you scale.</p>
+
+    <div class="card-grid col-2" style="max-width:820px;">
+      <div class="card card-teal" style="padding:28px 32px;">
+        <div class="card-label" style="color:var(--teal); margin-bottom:4px;">Phase 1–2 · SaaS Pilot</div>
+        <div style="font-size:11px; opacity:.6; margin-bottom:20px;">For demand forecasting on one category/store</div>
+        <div class="cost-row"><span class="cost-label">Setup &amp; integration</span><span class="cost-val">£2k–£13k</span></div>
+        <div class="cost-row"><span class="cost-label">Monthly SaaS</span><span class="cost-val">£700–£5.8k</span></div>
+        <div class="cost-row"><span class="cost-label">Staff training</span><span class="cost-val">£500–£1k per person</span></div>
+        <div class="cost-row" style="border-top:1px solid rgba(0,0,0,.1); padding-top:14px; margin-top:4px;">
+          <span class="cost-label"><strong>Annual pilot TCO</strong></span>
+          <span class="cost-val" style="color:var(--teal);">£9k–£83k</span>
+        </div>
+      </div>
+      <div class="card card-sand" style="padding:28px 32px; border: 1px solid var(--sand3);">
+        <div class="card-label" style="color:var(--amber); margin-bottom:4px;">Phase 3–4 · Hybrid Scale</div>
+        <div style="font-size:11px; opacity:.6; margin-bottom:20px;">Recommended architecture for full rollout</div>
+        <div class="cost-row"><span class="cost-label">Setup cost</span><span class="cost-val">£70,560</span></div>
+        <div class="cost-row"><span class="cost-label">Annual running cost</span><span class="cost-val">£120,485</span></div>
+        <div class="cost-row"><span class="cost-label">Data remediation (if needed)</span><span class="cost-val">£30k–£60k</span></div>
+        <div class="cost-row"><span class="cost-label">Change management</span><span class="cost-val">£20k–£40k</span></div>
+        <div class="cost-row" style="border-top:1px solid rgba(0,0,0,.1); padding-top:14px; margin-top:4px;">
+          <span class="cost-label"><strong>3-year TCO</strong></span>
+          <span class="cost-val" style="color:var(--amber);">~£394k</span>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:12px; opacity:.5; margin-top:16px; max-width:700px;">
+      ROI frame: £300k–£750k annual benefit at full deployment. With a 60% attribution discount, conservative net benefit is £180k–£450k/year. Payback: 9–18 months post full rollout.
+    </p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 8 · SUCCESS METRICS
+  ══════════════════════════════════════════════ -->
+  <div class="slide slide-ink" data-label="Success Metrics">
+    <div class="eyebrow" style="color:rgba(255,255,255,.45);">How we measure success</div>
+    <h2 class="display" style="color:#fff; margin-bottom:32px;">Four KPIs. One <em class="sand" style="color:var(--teal-lt);">decision rule.</em></h2>
+    <div class="card-grid col-2" style="max-width:740px;">
+      <div class="card card-dark">
+        <div class="card-label" style="color:var(--teal-lt);">Inventory days-on-hand</div>
+        <div class="card-num" style="color:#fff;">−15%</div>
+        <div class="card-desc">Less capital tied up in slow-moving stock</div>
+      </div>
+      <div class="card card-dark">
+        <div class="card-label" style="color:var(--teal-lt);">Stockout rate</div>
+        <div class="card-num" style="color:#fff;">−30%</div>
+        <div class="card-desc">Fewer lost sales on high-demand SKUs</div>
+      </div>
+      <div class="card card-dark">
+        <div class="card-label" style="color:var(--teal-lt);">Markdown rate</div>
+        <div class="card-num" style="color:#fff;">−20%</div>
+        <div class="card-desc">Less end-of-life discounting on electronics</div>
+      </div>
+      <div class="card card-dark">
+        <div class="card-label" style="color:var(--teal-lt);">Forecast accuracy (MAPE)</div>
+        <div class="card-num" style="color:#fff;">&lt;15%</div>
+        <div class="card-desc">Mean absolute percentage error threshold</div>
+      </div>
+    </div>
+    <div class="rule" style="max-width:740px;"></div>
+    <p style="font-size:14px; color:rgba(255,255,255,.65); max-width:640px; line-height:1.65;">
+      <strong style="color:#fff;">Decision rule:</strong> Measure at Month 12 and Month 18 — not earlier. If two of four KPIs are not met at Month 18, stop and reassess. Do not extend a failing pilot.
+    </p>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       SLIDE 9 · YOUR NEXT 30 DAYS
+  ══════════════════════════════════════════════ -->
+  <div class="slide slide-dark" data-label="Next Steps">
+    <div class="eyebrow">The single most important thing to do</div>
+    <h2 class="display" style="color:#fff; max-width:640px; margin-bottom:8px;">
+      Commission a 30-day<br><em class="sand" style="color:#c9e8e1;">Data &amp; Process Audit</em>
+    </h2>
+    <p style="font-size:16px; color:rgba(255,255,255,.65); max-width:560px; line-height:1.65; margin-bottom:36px;">
+      Before spending anything on AI tools. A £5k–£8k audit will tell you exactly what is missing, how long it takes to fix, and whether the investment case holds. Everything else comes after this.
+    </p>
+
+    <div class="card-grid col-3" style="max-width:800px; margin-bottom:40px;">
+      <div class="card" style="background:rgba(255,255,255,.08); padding:20px 22px;">
+        <div style="font-size:22px; margin-bottom:10px;">📊</div>
+        <div style="font-size:13px; font-weight:600; color:#fff; margin-bottom:6px;">Audit your data</div>
+        <div style="font-size:12px; color:rgba(255,255,255,.55); line-height:1.5;">Sales, inventory, and customer data quality with a retail data specialist</div>
+      </div>
+      <div class="card" style="background:rgba(255,255,255,.08); padding:20px 22px;">
+        <div style="font-size:22px; margin-bottom:10px;">🗺️</div>
+        <div style="font-size:13px; font-weight:600; color:#fff; margin-bottom:6px;">Map your processes</div>
+        <div style="font-size:12px; color:rgba(255,255,255,.55); line-height:1.5;">Where exactly would AI decisions plug into buying and merchandising workflows</div>
+      </div>
+      <div class="card" style="background:rgba(255,255,255,.08); padding:20px 22px;">
+        <div style="font-size:22px; margin-bottom:10px;">🤝</div>
+        <div style="font-size:13px; font-weight:600; color:#fff; margin-bottom:6px;">Interview your team</div>
+        <div style="font-size:12px; color:rgba(255,255,255,.55); line-height:1.5;">8–10 buyers, merchandisers, and store managers. Surface adoption barriers before they become blockers</div>
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:20px;">
+      <div style="width:48px; height:48px; border-radius:50%; background:var(--teal); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">→</div>
+      <div>
+        <div style="font-size:15px; color:#fff; font-weight:600;">Outcome of the audit</div>
+        <div style="font-size:13px; color:rgba(255,255,255,.55); line-height:1.5;">A realistic implementation roadmap with honest timelines and costs — so you make an evidence-based investment decision, not an AI-hype decision.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <span class="nav-counter" id="navCounter"></span>
+  <button class="nav-btn" id="btnPrev" onclick="go(-1)">&#8592;</button>
+  <button class="nav-btn" id="btnNext" onclick="go(1)">&#8594;</button>
+</div>
+<div class="kbd-hint">← → Space to navigate</div>
+
+<script>
+const slides = Array.from(document.querySelectorAll('.slide'));
+const bar    = document.getElementById('progressBar');
+const label  = document.getElementById('slideLabel');
+const counter= document.getElementById('navCounter');
+const btnP   = document.getElementById('btnPrev');
+const btnN   = document.getElementById('btnNext');
+let cur = 0;
+
+function go(delta) {
+  const next = cur + delta;
+  if (next < 0 || next >= slides.length) return;
+  slides[cur].classList.remove('active');
+  cur = next;
+  slides[cur].classList.add('active');
+  update();
+}
+
+function update() {
+  const pct = ((cur + 1) / slides.length) * 100;
+  bar.style.width = pct + '%';
+  label.textContent = slides[cur].dataset.label || '';
+  counter.textContent = (cur + 1) + ' / ' + slides.length;
+  btnP.disabled = cur === 0;
+  btnN.disabled = cur === slides.length - 1;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(1); }
+  if (e.key === 'ArrowLeft')  { e.preventDefault(); go(-1); }
+});
+
+// Touch swipe
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend',   e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+}, { passive: true });
+
+update();
+</script>
+</body>
+</html>
