@@ -248,6 +248,6 @@ npm install
 npm start
 ```
 
-Then open `http://localhost:3000/ai_diagnostic_tool.html` in a browser.
+Then open `http://localhost:3001/ai_diagnostic_tool.html` in a browser.
 
 The tool places a retail business on a 5-stage AI maturity model, scores data, workforce, and leadership readiness, and produces a CFO-legible recommendation report downloadable as PDF.
