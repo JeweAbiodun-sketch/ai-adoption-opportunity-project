@@ -1,66 +1,97 @@
 # Dashboard Documentation — Retail AI Adoption Evidence
-**Tool: Tableau · File: retail_ai_dashboard.twbx**
+**Tool: Python (matplotlib / seaborn) · Output: 7-chart evidence dashboard**
 
 ---
 
 ## Dashboard Purpose
-This dashboard is the evidence layer for Cleo's meeting. It answers one question:
+
+This Python-generated dashboard is the evidence layer for Cleo's presentation. It answers one question:
 **"Where does market data show AI adoption is worth exploring for mid-market retail?"**
 
-It is a communication layer (not an analysis layer) — designed for a non-technical CEO.
+It is a communication layer — not an analysis layer — designed for a non-technical CEO. Every chart is paired with a plain-language insight. All numbers are sourced from published datasets.
 
 ---
 
 ## Data Sources
-1. `data/processed/retail_sales_cleaned.csv` — transaction-level retail data
-2. `data/processed/ai_adoption_retail_filtered.csv` — AI adoption by industry
+
+1. `data/raw/retail_sales_dataset.csv` — 1,000 transaction-level retail records (Kaggle)
+2. `data/raw/global_ai_tool_adoption.csv` — AI adoption rates by industry and company size (Kaggle, filtered: retail + SME segment)
 
 ---
 
-## Dashboard Views (Recommended 3-sheet structure in Tableau)
+## Dashboard Sections & Charts (7 Total)
 
-### Sheet 1 — "The Retail AI Opportunity" (KPI overview)
-**Metrics to display:**
-- 89% retailers using/testing AI (big number callout)
-- 33% fully implemented (contrast callout — the gap IS the opportunity)
-- $18.4B global retail AI market size
-- $3.50 return per $1 in AI customer service
-- 10–20% average inventory cost reduction
+### Section 1 — Market Signals (Slides 3)
 
-**Chart types:** Big number KPI tiles, simple bar showing adoption vs implementation gap
+**Chart 1 — AI Adoption Rate by Industry (Bar Chart)**
+- X-axis: Average adoption rate
+- Y-axis: Industry (Agriculture, Education, Finance, Healthcare, Manufacturing, Retail, Technology, Transportation)
+- Highlight: Retail bar in distinct colour — matches sector average (~50%)
+- Insight: "Retail adoption matches the sector average — but 56% of retailers still haven't implemented AI. That implementation gap is exactly where Cleo can lead."
 
-### Sheet 2 — "Your Sales Data: Why AI Would Help" (from Kaggle dataset)
-**Metrics to display:**
-- Monthly revenue trend (line chart — show seasonality)
-- Revenue by product category (bar chart — shows where demand concentration is)
-- Quantity sold vs revenue by category (scatter — shows margin variability)
-- Customer age distribution (bar — shows segmentation opportunity)
-
-**Insight to communicate:** "This is the pattern of data your business generates. AI demand forecasting reads exactly this pattern to predict what to stock and when."
-
-### Sheet 3 — "Hype vs Evidence" (adoption context)
-**Metrics to display:**
-- AI adoption rate by industry (bar — show retail vs other sectors)
-- AI use case by evidence tier (colour-coded table: green/amber/red)
-- Recommended use case timeline (Gantt or milestone chart)
-
-**Insight to communicate:** "Not all AI is equal. This shows where the evidence is strong and where Cleo should be cautious."
+**Chart 2 — Adoption vs Full Implementation Gap (KPI callout)**
+- 89% retailers using or testing AI
+- 33% have fully implemented
+- 56% gap = the opportunity
+- Insight: "No single AI tool dominates retail SMEs. Cleo can choose on fit, not pressure."
 
 ---
 
-## Dashboard Design Principles Applied
-- **Single source of truth:** All numbers from documented public sources
-- **Stakeholder-focused:** Every metric answers "should Cleo invest?"
+### Section 2 — Retail Sales Evidence (Slide 4)
+
+**Chart 3 — Monthly Revenue Trend (Line Chart)**
+- X-axis: Month (1–12)
+- Y-axis: Revenue (£K)
+- Annotated: Peak £51K (Nov), Trough £29K (Feb)
+- Insight: "A 76% peak-to-trough revenue swing means buyers are guessing every replenishment cycle. AI forecasting converts this seasonal pattern into a weekly, data-driven reorder plan."
+
+**Chart 4 — Revenue by Product Category (Bar Chart)**
+- Categories: Beauty, Clothing, Electronics
+- Highlight: Clothing + Electronics = 69% of revenue
+- Insight: "69% of revenue is concentrated in two categories — pilot AI forecasting here first."
+
+**Chart 5 — Customer Age Distribution (Bar Chart)**
+- Segments: 4 equal age bands
+- 84% of customers across 4 segments
+- Insight: "Four equal customer segments = a clear Phase 2 personalisation target once forecasting is stable."
+
+---
+
+### Section 3 — Hype vs Evidence (Slide 5)
+
+**Chart 6 — Use Case Hype vs Evidence Scatter (Bubble Chart)**
+- X-axis: Hype score (1–10)
+- Y-axis: Evidence score (1–10)
+- Bubble size: Estimated annual ROI (£)
+- Points: Demand Forecasting, Customer Personalisation, AI Customer Service, Dynamic Pricing, Content AI, Autonomous Checkout
+- Insight: "Inventory forecasting stands alone — high evidence, low hype, highest ROI. No other use case makes that case."
+
+**Chart 7 — Estimated Annual ROI by Use Case (Horizontal Bar Chart)**
+- Inventory Forecasting: £650K (highlighted)
+- Customer Personalisation: £300K
+- AI Customer Service: £240K
+- Dynamic Pricing: £180K
+- Content AI: £85K
+- Reference line at £300K to show 2× gap
+- Insight: "Demand forecasting delivers £650K — more than 2× the next best opportunity."
+
+---
+
+## Dashboard Design Principles
+
+- **Single source of truth:** All numbers from documented public datasets or published benchmarks
+- **Stakeholder-focused:** Every chart answers "should Cleo invest in AI, and where?"
 - **No jargon:** Labels written for a CEO, not a data scientist
-- **Clear recommendation:** Dashboard ends with a decision — invest, wait, or pilot
+- **Evidence-first:** Hype scores shown alongside evidence scores so the CEO can see the contrast
+- **Clear recommendation:** Dashboard ends with a decision — Inventory Forecasting is the start point
 
 ---
 
-## Tableau Setup Instructions
-1. Open Tableau Desktop
-2. Connect to `data/processed/retail_sales_cleaned.csv`
-3. Create calculated fields: Month (from Date), Revenue per Customer
-4. Build Sheet 1 → Sheet 2 → Sheet 3 as described above
-5. Create a Dashboard combining all three sheets
-6. Add a title: "AI Adoption Evidence — Mid-Market Retail"
-7. Export as `.twbx` packaged workbook
+## Python Setup Notes
+
+- Libraries: `pandas`, `matplotlib`, `seaborn`
+- Input files: `data/raw/retail_sales_dataset.csv`, `data/raw/global_ai_tool_adoption.csv`
+- Output: 7 charts rendered inline or exported as PNG for slide embedding
+- Filtering applied to adoption dataset: `sector == 'Retail'` and `company_size == 'SME'`
+- Monthly revenue calculated by aggregating `transaction_date` → month and summing `total_amount`
+- All currency values in GBP (£); adoption rates as percentages

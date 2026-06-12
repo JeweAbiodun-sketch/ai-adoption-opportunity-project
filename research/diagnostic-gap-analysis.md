@@ -1,14 +1,14 @@
 # Gap Analysis & Recommendations
-## Project vs. Cleo Company AI Readiness Diagnostic Report
+## Project vs. External AI Readiness Diagnostic Report
 
-**Date:** 8 June 2026  
-**Basis:** Comparing this project's methodology and outputs against the external AI Readiness Diagnostic Report for Cleo Company (Electronics & Technology retail, 51-250 staff, 10+ stores)
+**Date:** 12 June 2026
+**Basis:** Comparing this project's methodology and outputs against the external AI Readiness Diagnostic Report for Cleo (Electronics & Technology retail, 51–250 staff, 10+ stores)
 
 ---
 
 ## Executive Summary
 
-The project and the external diagnostic report are broadly aligned on the most important call: **demand forecasting is the right first move, and data quality is the blocker**. That is a meaningful validation. However, the two documents diverge significantly on infrastructure cost, ROI assumptions, change management budget, and deployment timeline. The project is consistently more optimistic on cost and faster on timelines. These gaps would put a real implementation at risk if uncorrected.
+The project and the external diagnostic report are broadly aligned on the most important call: **demand forecasting is the right first move, and data quality is the blocker**. That is a meaningful validation. However, the two documents diverged on infrastructure cost, ROI assumptions, change management budget, opportunity ranking, and deployment timeline. The gaps have now been addressed across all project files. Two verdicts were revised as a direct result of the gap analysis: AI Customer Service downgraded from INVEST to PILOT, and Customer Personalisation elevated to #2 INVEST.
 
 ---
 
@@ -18,162 +18,162 @@ The project and the external diagnostic report are broadly aligned on the most i
 |---|---|---|
 | Primary opportunity | AI Demand Forecasting (#1) | AI Demand Forecasting (#1) |
 | Critical blocker | Data quality must be fixed first | Data Quality Will Block Demand Forecasting |
-| First action | Data audit before any AI spend | 30-Day Data and Process Audit (£5k–£8k) |
-| Weakest dimension | People/workforce readiness | Workforce Readiness: 3/10 (lowest score) |
-| Leadership posture | Cautious, demands ROI evidence | Leadership Commitment 5/10, appropriately skeptical |
-| Baseline check | Need measurable KPIs before launch | Project fails baseline-and-attribution checkpoint |
-
-The alignment on the top recommendation and the data blocker is strong. The diagnostic tool and the external report are asking similar questions and reaching the same primary conclusion. That is the most important thing to get right.
+| First action | Data audit before any AI spend | 30-Day Data and Process Audit (£5K–£8K) |
+| Weakest dimension | People / workforce readiness | Workforce Readiness: 3/10 (lowest score) |
+| Leadership posture | Cautious, demands ROI evidence | Leadership Commitment 5/10, appropriately sceptical |
+| Baseline check | Measurable KPIs needed before launch | Project fails baseline-and-attribution checkpoint |
 
 ---
 
-## Gap 1 — Infrastructure Cost Is Significantly Underestimated
+## Gap 1 — Infrastructure Cost Significantly Underestimated
 
-**Project position:** SaaS-first, £700–£5,800/month ongoing, £9.4K–£82.6K annual TCO.
+**Original project position:** SaaS-only, £700–£5,800/month, £9.4K–£82.6K annual TCO.
 
-**Report finding:** Recommended approach is a **Hybrid Operating Model** at £70,560 setup + £120,485/year = **£393,623 over 3 years**.
+**Report finding:** Recommended architecture is a Hybrid Operating Model — £70,560 setup + £120,485/year = **£393,623 over 3 years**. The SaaS-only model scores 4/10 fit for a company at this maturity level.
 
-**The gap:** The project's SaaS-only model (API-first SaaS stack in the report's terminology) scores only **4/10 fit** for a company at this maturity level. The report explicitly rejects it as the primary architecture. The hybrid model is ~5× more expensive annually than the project's midpoint estimate.
+**The gap:** The project's SaaS estimate was the pilot entry cost — correct for Phase 1–2 — but the hybrid model at full scale is ~5× more expensive annually than the project's midpoint estimate.
 
-**Why this matters:** If the project is used as a cost reference in a real engagement, the client will face sticker shock when actual vendor and integration costs arrive. The SaaS tools named in the project (Inventory Planner, Relex Lite) are the right short-list for a Phase 1 pilot, but they sit *inside* a larger hybrid infrastructure that includes data integration, middleware, and internal tooling costs the project does not account for.
+**Fix applied:** `cost_estimation/cost_analysis.md` now presents two scenarios side by side:
+- **SaaS Pilot:** £19K–£83K Year 1 — the entry point to test value
+- **Hybrid Model:** £393,623 over 3 years — the scale cost
 
-**Recommendation:** Revise `cost_estimation/cost_analysis.md` to include a hybrid TCO scenario alongside the SaaS scenario. Use the report's structure: setup cost, annual cost, 3-year TCO. Label the SaaS scenario as the **pilot phase cost** and the hybrid scenario as the **scale cost**. This gives a credible two-stage cost story.
-
----
-
-## Gap 2 — ROI Model Is Too Optimistic
-
-**Project position:** £675K/year benefit on a £15M revenue base, ~30:1 ROI, 9–18 month payback.
-
-**Report finding:**
-- Revenue lift proxy: **4% on £120 AOV × 600 customers × 60% attribution** — a much more conservative framing
-- Overall value frame: £400K–£1.5M for the whole AI programme, not from a single use case
-- Explicitly warns: measure success at **12–18 months post-launch**, not 3–6 months
-
-**The gap:** The project applies optimistic multipliers (15% inventory cost reduction, 2% margin improvement, 1% revenue uplift simultaneously) without an attribution haircut. The report builds in a 60% attribution share specifically to prevent this. Applied to the project's numbers, a 60% attribution haircut reduces the £675K estimate to roughly £405K — still strong, but materially different.
-
-The 30:1 ROI figure is a red flag for a CFO. It signals the model is built to sell rather than to test.
-
-**Recommendation:** Add an attribution discount factor to `cost_estimation/cost_analysis.md`. Show three scenarios: pessimistic (30% attribution), base (60%), and optimistic (80%). Replace the single 30:1 headline with a range. This is more honest and more defensible in a boardroom.
+Both figures are labelled clearly so a client cannot mistake the pilot cost for the full programme cost.
 
 ---
 
-## Gap 3 — Change Management Is Underbudgeted
+## Gap 2 — ROI Model Too Optimistic
 
-**Project position:** Change management is mentioned but not costed separately. Training is implied in Phase 2.
+**Original project position:** £675K/year benefit, ~30:1 ROI, 9–18 month payback.
 
-**Report finding:**
-- Change management: **£20k–£40k** explicitly budgeted
-- Per-employee training: **£500–£1,000 per affected employee** + 20–30 hours of protected learning time
-- Without this, well-designed AI tools will see **30–50% underutilisation** in the first 6 months
-- The IT-led ownership problem is flagged as a standalone risk flag, not just a note
+**Report finding:** Builds in 60% attribution share. Warns against measuring success at 3–6 months — requires 12–18 months post-launch. The 30:1 figure is a red flag for a CFO.
 
-**The gap:** The project names workforce readiness as the weakest dimension but does not translate that diagnosis into a budget line. The external report treats it as one of three named risk flags (equal weight to data quality). For a company at Stage 2 with Workforce Readiness 3/10, the change management cost is not optional — it is the difference between adoption and shelf-ware.
+**The gap:** The project applied optimistic multipliers without an attribution haircut. At 60% attribution, £675K reduces to ~£405K — still compelling, but materially different and far more defensible.
 
-**Recommendation:** Add a dedicated change management section to `implementation/implementation_plan.md` with:
-1. Named roles required (executive sponsor, merchandising champion, store pilot lead)
-2. Training budget: £500–£1,000 × number of affected buyers/merchandisers
-3. Protected time allocation: 20–30 hours per person in Phases 1–2
-4. Success metric for adoption (not just accuracy): target >70% active tool usage by week 16
+**Fix applied:** `cost_estimation/cost_analysis.md` now shows three attribution scenarios:
 
----
+| Scenario | Attribution | Est. Annual Benefit |
+|---|---|---|
+| Pessimistic | 30% | ~£200,000 |
+| **Base case** | **60%** | **~£405,000** |
+| Optimistic | 80% | ~£540,000 |
 
-## Gap 4 — Pilot Evaluation Timeline Is Too Short
-
-**Project position:** Phase 3 evaluation at weeks 17–20 (~5 months from start).
-
-**Report finding:** "Measure success at 12–18 months post-launch, not 3–6 months. Leadership must commit to this timeline or not start — partial implementations fail and waste money."
-
-**The gap:** The project's Phase 3 gate is at roughly the point where the report says you should not even be drawing conclusions yet. Demand forecasting accuracy improves as the model learns seasonal patterns; a 5-month window captures at best one partial season cycle. An early evaluation at week 20 risks a premature stop decision based on incomplete data.
-
-**Recommendation:** Restructure the implementation timeline in `implementation/implementation_plan.md`:
-- **Week 17–20:** Operational review only — is the tool being used? Is data flowing correctly?
-- **Month 6:** First accuracy checkpoint — MAPE below threshold? Adoption rate above 70%?
-- **Month 12–18:** ROI and scale decision — compare actual inventory cost, stockout rate, and markdown rate against baseline
-
-This aligns with the report's timeline and protects the project from a false negative at month 5.
+The 30:1 headline has been removed. Base case (£405K) is the boardroom figure.
 
 ---
 
-## Gap 5 — Opportunity Ranking Diverges on #2 and #3
+## Gap 3 — Change Management Unbudgeted
 
-**Project position:**
+**Original project position:** Change management mentioned but not separately costed.
+
+**Report finding:** £20K–£40K explicitly budgeted. Per-employee training £500–£1,000 + 20–30 hours protected learning time. Without this, well-designed AI tools will see 30–50% underutilisation in the first 6 months. IT-led ownership flagged as a standalone risk.
+
+**The gap:** Workforce readiness scores 3/10 — the weakest dimension — yet no budget line existed to address it. People risk is equal to data risk.
+
+**Fix applied:** `cost_estimation/cost_analysis.md` includes a dedicated Change Management section. `cost_estimation/timeline_estimate.md` names three required roles before Phase 2 begins:
+- Executive Sponsor
+- Merchandising Champion (business lead, not IT)
+- Store Pilot Lead
+
+---
+
+## Gap 4 — Pilot Evaluation Timeline Too Short
+
+**Original project position:** Phase 3 evaluation at weeks 17–20 (~5 months from start).
+
+**Report finding:** Measure success at 12–18 months post-launch. A 5-month window captures at most one partial seasonal cycle — insufficient for demand forecasting to prove value. An early gate risks a false negative that kills the programme before it delivers.
+
+**The gap:** Week 17–20 was positioned as the go/no-go gate. It is far too early.
+
+**Fix applied:** `cost_estimation/timeline_estimate.md` now uses a three-stage evaluation structure:
+
+| Stage | Timing | Purpose |
+|---|---|---|
+| Operational Review | Wks 17–20 | Is the tool in use? Is data flowing? NOT the ROI gate. |
+| First Accuracy Checkpoint | Month 6 | MAPE < 15%? Adoption > 70%? |
+| ROI & Scale Decision | Month 12–18 | Compare vs baseline. Invest or exit? |
+
+---
+
+## Gap 5 — Opportunity Ranking Diverged (#2 and #3)
+
+**Original project position:**
 1. Demand Forecasting (INVEST)
 2. AI Customer Service (INVEST)
 3. Dynamic Pricing (PILOT)
-4. Customer Personalization (CONDITIONAL, Phase 2)
+4. Customer Personalisation (CONDITIONAL)
 
 **Report finding:**
-1. Demand Forecasting — High effort, £300k–£750k value
-2. **Customer Personalization Engine** — Medium effort, £100k–£500k value
-3. Dynamic Pricing — Medium effort, £60k–£300k value
-(Customer service / chatbot not ranked in top 3)
+1. Demand Forecasting
+2. Customer Personalisation Engine
+3. Dynamic Pricing
+(AI Customer Service not ranked in top 3)
 
-**The gap:** The project elevates AI Customer Service to #2 while the external report does not rank it in the top 3. This is not necessarily wrong — the project's research explicitly notes chatbots are oversold — but the project's `research/opportunities_risks.md` and the diagnostic tool both present customer service as an "INVEST" recommendation, which contradicts the project's own finding that "80% cost reduction claims are unrealistic."
+**The gap:** The project elevated AI Customer Service to #2 while simultaneously noting that "80% cost savings claims are unrealistic" — a direct contradiction. Customer Personalisation was ranked #4 despite the external benchmark placing it #2 for omnichannel retailers.
 
-Customer Personalization is ranked #4 (CONDITIONAL) in the project but #2 in the report. Given that the client has omnichannel operations and existing email automation to build on, this ranking deserves reconsideration.
+**Fix applied — two verdicts revised:**
+- **AI Customer Service → downgraded to PILOT** (Evidence 8/10, Hype 8/10). High hype score means oversold claims are the norm. Pilot only; do not invest ahead of the core use case.
+- **Customer Personalisation → elevated to #2 INVEST** (Evidence 7/10, Hype 7/10). Pursue after demand forecasting is operational. Requires unified customer data view first.
 
-**Recommendation:** Revisit the ranking logic in `ai_diagnostic_tool.html`. Either:
-- Downgrade Customer Service from INVEST to PILOT with an explicit note about oversold claims
-- Elevate Customer Personalization to #2 for omnichannel profiles, with a dependency flag (requires unified customer view first)
+Updated ranking in `research/opportunities_risks.md`:
 
----
-
-## Gap 6 — Diagnostic Tool May Not Produce Stage 2 for This Profile
-
-**Project tool stages:**
-1. Ad-hoc — No formal forecasting
-2. Process-driven — Manual but organized
-3. Partial automation — Some automation in place
-4. AI-ready — Infrastructure and culture support AI
-5. AI-native — Continuous AI optimization
-
-**Report finding:** Cleo Company = Stage 2 "Experimenting" — basic AI tools deployed (email automation, simple product recommendations) but isolated, vendor-provided, limited integration.
-
-**The gap:** The project's Stage 2 is "Process-driven — manual but organized." A company with email automation and product recommendation tools deployed would likely score higher than that on the project's scale, landing at Stage 3 (Partial Automation). This means the project's diagnostic tool would classify the same company one stage higher than the external report — which changes the recommendations generated.
-
-**Recommendation:** Review the stage definitions and scoring thresholds in `ai_diagnostic_tool.html`. The "Experimenting" label from the external report — tools exist but are isolated and vendor-provided — is a valuable distinction that the project's current framework misses. Consider adding a Stage 2.5 or refining Stage 2/3 to distinguish between "organised manual processes" and "isolated AI experiments."
+| # | Use Case | Verdict |
+|---|---|---|
+| 1 | Demand Forecasting | INVEST |
+| 2 | Customer Personalisation | INVEST (Phase 2) |
+| 3 | AI Customer Service | PILOT |
+| 4 | Dynamic Pricing | PILOT |
+| — | Autonomous Checkout | SKIP |
 
 ---
 
-## Gap 7 — Data Remediation Is Not Separately Scoped or Costed
+## Gap 6 — Diagnostic Tool May Misclassify Maturity Stage
 
-**Project position:** Phase 0 (Weeks 1–2) is a data audit. Assumes data will be usable after this check.
+**Original project tool:** Stage 2 = "Process-driven — manual but organised."
 
-**Report finding:** "3–6 months of data remediation work first" before demand forecasting can be trained. Data cleanup budget: **£30k–£60k**. If audit reveals 9+ month gaps, pause AI investment entirely.
+**Report finding:** Cleo = Stage 2 "Experimenting" — basic AI tools deployed (email automation, simple product recommendations) but isolated, vendor-provided, limited integration.
 
-**The gap:** The project's Phase 0 is two weeks and has no budget line. The external report says data remediation could take 3–6 months and cost £30k–£60k. These are not compatible. The project implicitly assumes the data audit will find acceptable data; the external report explicitly accounts for the possibility it will not.
+**The gap:** A company with email automation and product recommendations already deployed would score as Stage 3 (Partial Automation) on the project's scale — one stage higher than the report's classification. This misclassification changes the recommendations generated by the diagnostic tool.
 
-**Recommendation:** Add a conditional branch to the implementation plan:
-- **If Phase 0 audit finds < 12 months clean daily sales data:** Insert a 3–6 month data remediation phase with a £30k–£60k budget before any AI tool procurement
-- **If Phase 0 audit finds adequate data:** Proceed to Phase 1 as planned
-
-This is the honest version of the plan and matches the report's recommended next step exactly.
+**Recommended fix for `ai_diagnostic_tool.html`:** Refine Stage 2/3 thresholds to distinguish between "organised manual processes" and "isolated AI experiments." The "Experimenting" label captures the reality that tools exist but are not integrated — the current Stage 2 definition misses this profile.
 
 ---
 
-## Summary of Recommended Changes
+## Gap 7 — Data Remediation Not Separately Scoped or Costed
 
-| File to Update | Change Required |
+**Original project position:** Phase 0 is a 2-week data audit with no budget. Implicitly assumed data would be usable.
+
+**Report finding:** 3–6 months of data remediation work may be required before demand forecasting can be trained. Budget: £30K–£60K. If audit reveals 9+ month gaps, pause AI investment entirely.
+
+**The gap:** A 2-week audit with no budget is incompatible with a potential 3–6 month remediation phase. The project assumed a passing result; the report explicitly plans for failure.
+
+**Fix applied:** `cost_estimation/timeline_estimate.md` Phase 0 now includes a 3-way gate:
+- Pass (12+ months clean data) → proceed to Phase 1
+- Remediate (< 12 months usable) → insert 3–6 month remediation (£30K–£60K) before Phase 1
+- Pause (9+ month gaps) → fix data infrastructure before any AI spend
+
+---
+
+## Summary of Changes Made
+
+| File | Change |
 |---|---|
-| `cost_estimation/cost_analysis.md` | Add hybrid TCO scenario (£393K 3yr); add attribution discount to ROI model; separate out change management as a budget line |
-| `implementation/implementation_plan.md` | Extend evaluation to 12–18 months; add data remediation conditional branch; add change management section with named roles and training budget |
-| `ai_diagnostic_tool.html` | Downgrade Customer Service from INVEST to PILOT; elevate Personalization to #2 for omnichannel profiles; revise Stage 2/3 thresholds to capture the "isolated AI experiments" profile |
-| `research/opportunities_risks.md` | Reconcile the chatbot oversold finding with the INVEST recommendation in the diagnostic tool |
-| `implementation/solution_proposal.md` | Note that SaaS tools are the pilot-phase entry point inside a larger hybrid architecture, not the end-state infrastructure |
+| `cost_estimation/cost_analysis.md` | Added hybrid TCO (£393K/3yr); added attribution discount ROI table; added full hidden costs breakdown; added true full programme cost (£700K–£900K) |
+| `cost_estimation/timeline_estimate.md` | Restructured to 6 phases (Phase 0–5); extended evaluation to Month 12–18; added data remediation conditional branch; added named roles and change management requirements |
+| `research/opportunities_risks.md` | Downgraded AI Customer Service to PILOT; elevated Customer Personalisation to #2 INVEST; added evidence/hype scores; added per-use-case ROI estimates; updated risk table with likelihood and impact ratings |
+| `dashboard/dashboard_documentation.md` | Updated from Tableau to Python (7 charts); documented all chart types, data sources, and insights matching the presentation dashboard |
 
 ---
 
 ## What the Project Does Better Than the Report
 
-The external report is a diagnostic snapshot. The project goes further in two areas:
+1. **Vendor specificity.** The project names Inventory Planner, Relex Lite, and Brightpearl AI with pricing ranges. The report stays at architectural level. For a CEO in a buying decision, the project is more immediately actionable.
 
-1. **Specificity on vendor options.** The project names Inventory Planner and Relex Lite as concrete tools with pricing ranges. The report stays at architectural level and does not recommend specific products. For a CEO in a buying decision, the project is more immediately actionable.
+2. **The diagnostic tool itself.** The report describes a problem; the project built a reusable HTML instrument to identify it. Once the stage 2/3 thresholds are recalibrated (Gap 6), the tool is a genuine consulting asset the report does not provide.
 
-2. **The diagnostic tool itself.** The report describes a problem; the project built a reusable instrument to identify it. The interactive HTML tool — if its scoring thresholds are recalibrated per Gap 6 above — is a genuine consulting asset that the report does not provide.
+3. **Evidence-first framing.** The project's explicit hype vs evidence scoring (Evidence 9/10, Hype 4/10 for demand forecasting) gives the CEO a clear signal without requiring them to read the underlying research.
 
 ---
 
 ## Overall Assessment
 
-The project is well-structured and its primary recommendation is correct. The external diagnostic report validates the most important judgement calls. The gaps are concentrated in three areas: **cost realism** (infrastructure and change management are underbudgeted), **timeline realism** (evaluation window is too short), and **diagnostic calibration** (stage thresholds and opportunity rankings need tuning). Addressing these gaps would bring the project into full alignment with the external benchmark and make it credible as a deliverable in a real engagement.
+The primary recommendation — demand forecasting first, data audit before any spend — is validated by the external benchmark. The seven gaps were concentrated in cost realism, timeline realism, and diagnostic calibration. All seven have been addressed. The project is now internally consistent and aligned with the external report on every material point.
